@@ -5,8 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lasse Meerburg — Game Producer</title>
 <meta name="description" content="Lasse Meerburg is a Game Producer studying at Breda University of Applied Sciences, with more than two years of experience leading game teams of up to 28 people.">
+<link rel="canonical" href="https://aceevans.github.io/p3r-portfolio/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lasse Meerburg — Game Producer">
 <meta property="og:title" content="Lasse Meerburg — Game Producer">
-<meta property="og:description" content="Portfolio of Lasse Meerburg, Game Producer at Breda University of Applied Sciences.">
+<meta property="og:description" content="Lasse Meerburg is a Game Producer studying at Breda University of Applied Sciences, with more than two years of experience leading game teams of up to 28 people.">
+<meta property="og:url" content="https://aceevans.github.io/p3r-portfolio/">
+<meta property="og:image" content="https://aceevans.github.io/p3r-portfolio/assets/img/og/home.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Lasse Meerburg — Game Producer — portfolio preview">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#051538">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23051538'/%3E%3Ccircle cx='16' cy='16' r='10' fill='%2341dcff'/%3E%3Ccircle cx='21' cy='12' r='9' fill='%23051538'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,28 +31,38 @@
 <main id="main">
 
   <!-- ===== Title screen ===== -->
-  <section class="hero" aria-labelledby="hero-title">
+  <section class="hero hero--menu" aria-labelledby="hero-title">
     <div class="hero__memento" aria-hidden="true">Memento Mori</div>
     <div class="wrap hero__grid">
       <div class="hero__copy">
         <p class="kicker">Breda University of Applied Sciences</p>
         <h1 class="hero__title" id="hero-title"><span>Lasse</span><span>Meerburg</span></h1>
         <p class="hero__role">Game Producer</p>
-        <p class="hero__lead">I keep projects on schedule, build workflows that fit the team, and make sure <strong>everyone has what they need to do their best work</strong>.</p>
+        <nav class="hmenu" aria-label="Start">
+          <a class="hmenu__item" href="projects.html" style="--i:0"><span class="hmenu__label">Projects</span><span class="hmenu__tag">Social links</span></a>
+          <a class="hmenu__item" href="about.html" style="--i:1"><span class="hmenu__label">About</span><span class="hmenu__tag">Status</span></a>
+          <a class="hmenu__item" href="cv.html" style="--i:2"><span class="hmenu__label">CV</span><span class="hmenu__tag">Calendar</span></a>
+          <a class="hmenu__item" href="contact.html" style="--i:3" data-finisher><span class="hmenu__label">Contact</span><span class="hmenu__tag">Let's team up</span></a>
+        </nav>
         <ul class="hero__stats" aria-label="At a glance">
           <li><b>2+</b>Years making games</li>
           <li><b>5</b>Projects</li>
           <li><b>28</b>Largest team led</li>
         </ul>
-        <div class="btn-row">
-          <a class="btn btn--solid" href="projects.html">View projects ▶</a>
-          <a class="btn" href="cv.html">Read my CV</a>
-        </div>
       </div>
-      <figure class="hero__photo">
-        <div class="hero__frame" aria-hidden="true"></div>
-        <div class="hero__img">
-          <img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/a70b5be4-6b51-494e-b6a9-8e476831c168/IMG_20250909_161806.jpg?format=1000w" alt="Lasse sitting on a grassy hillside in a park, with trees behind him." width="1000" height="1312" fetchpriority="high">
+      <figure class="hero__figure">
+        <div class="hero__halo" aria-hidden="true"></div>
+        <div class="hero__slash" aria-hidden="true"></div>
+        <div class="hero__person">
+          <img class="hero__cutout" src="assets/img/lasse-cutout.png" alt="Lasse Meerburg standing in a light grey suit with his hands in his pockets." width="403" height="1349" fetchpriority="high">
+          <div class="hero__tint" style="-webkit-mask-image:url('assets/img/lasse-cutout.png');mask-image:url('assets/img/lasse-cutout.png')" aria-hidden="true"></div>
+        </div>
+        <div class="hero__rim" aria-hidden="true"></div>
+        <div class="hero__photo">
+          <div class="hero__frame" aria-hidden="true"></div>
+          <div class="hero__img">
+            <img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/a70b5be4-6b51-494e-b6a9-8e476831c168/IMG_20250909_161806.jpg?format=1000w" alt="Lasse sitting on a grassy hillside in a park, with trees behind him." width="1000" height="1312" loading="lazy" decoding="async">
+          </div>
         </div>
         <figcaption class="hero__badge">0 · The Fool</figcaption>
       </figure>
@@ -78,7 +97,7 @@
       <article class="proj" data-reveal>
         <a class="arcana" href="projects/soaked-in-sin.html" data-tilt aria-label="Soaked in Sin — open project page" style="--fit:contain">
           <span class="arcana__num">XIII</span>
-          <span class="arcana__art"><img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/6c86b7fc-7414-4c3a-ae66-5748085917e9/Soaked+In+Sin+Logo.png?format=750w" alt="" loading="lazy"></span>
+          <span class="arcana__art"><img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/6c86b7fc-7414-4c3a-ae66-5748085917e9/Soaked+In+Sin+Logo.png?format=750w" alt="" loading="lazy" width="750" height="768" decoding="async"></span>
           <span class="arcana__name">Death</span>
         </a>
         <div class="proj__body">
@@ -99,7 +118,7 @@
       <article class="proj" data-reveal>
         <a class="arcana" href="projects/project-heist.html" data-tilt aria-label="Project Heist — open project page" style="--pos:50% 40%">
           <span class="arcana__num">I</span>
-          <span class="arcana__art"><img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/0121efa8-6def-48db-aca3-4c8d348fcbda/Team1Concepting_W3_color.png?format=750w" alt="" loading="lazy"></span>
+          <span class="arcana__art"><img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/0121efa8-6def-48db-aca3-4c8d348fcbda/Team1Concepting_W3_color.png?format=750w" alt="" loading="lazy" width="750" height="422" decoding="async"></span>
           <span class="arcana__name">The Magician</span>
         </a>
         <div class="proj__body">
@@ -119,7 +138,7 @@
       <article class="proj" data-reveal>
         <a class="arcana" href="projects/sunbeat-city.html" data-tilt aria-label="Sunbeat City — open project page" style="--pos:22% 50%">
           <span class="arcana__num">XIX</span>
-          <span class="arcana__art"><img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/8e9fdb85-05a5-49b3-a9f9-baf64c06954c/Sunbeat+City_Image+%286%29.jpg?format=750w" alt="" loading="lazy"></span>
+          <span class="arcana__art"><img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/8e9fdb85-05a5-49b3-a9f9-baf64c06954c/Sunbeat+City_Image+%286%29.jpg?format=750w" alt="" loading="lazy" width="750" height="432" decoding="async"></span>
           <span class="arcana__name">The Sun</span>
         </a>
         <div class="proj__body">
@@ -159,7 +178,7 @@
       <article class="proj" data-reveal>
         <a class="arcana" href="projects/ortus.html" data-tilt aria-label="ORTUS — open project page" style="--fit:contain">
           <span class="arcana__num">VII</span>
-          <span class="arcana__art arcana__art--fill" style="--art:url('https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/cac41859-4544-452c-8e7e-97a00ee255c0/ORTUS+LOGO+2.png?format=300w')"><img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/cac41859-4544-452c-8e7e-97a00ee255c0/ORTUS+LOGO+2.png?format=750w" alt="" loading="lazy"></span>
+          <span class="arcana__art arcana__art--fill" style="--art:url('https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/cac41859-4544-452c-8e7e-97a00ee255c0/ORTUS+LOGO+2.png?format=300w')"><img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/cac41859-4544-452c-8e7e-97a00ee255c0/ORTUS+LOGO+2.png?format=750w" alt="" loading="lazy" width="750" height="585" decoding="async"></span>
           <span class="arcana__name">The Chariot</span>
         </a>
         <div class="proj__body">
@@ -207,7 +226,7 @@
       <div class="panel cta-band" data-reveal>
         <h2>Want to <em>team up?</em></h2>
         <div class="btn-row">
-          <a class="btn btn--solid" href="contact.html">Contact me ▶</a>
+          <a class="btn btn--solid" href="contact.html" data-finisher>Contact me ▶</a>
           <a class="btn" href="https://www.linkedin.com/in/lasse-meerburg-8530b225b/" target="_blank" rel="noopener">LinkedIn</a>
         </div>
       </div>

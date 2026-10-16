@@ -55,6 +55,7 @@
     clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 6.5V12l3.5 2.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     speaker: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z" fill="currentColor"/><path class="sfx-wave" d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="sfx-off" d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     up: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 14l7-7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    trophy: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v4.5a5 5 0 0 1-10 0z" fill="currentColor"/><path d="M7 5H4.5a3 3 0 0 0 3 4M17 5h2.5a3 3 0 0 1-3 4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10.5 13.5h3V16H16v3H8v-3h2.5z" fill="currentColor"/></svg>',
   };
 
   /* ---------- Visibility (one shared observer) -------------------------- */
@@ -176,6 +177,11 @@
       }),
       chime: gate(() => [1046, 1318, 1568, 2093].forEach((f, i) => tone({ freq: f, dur: 0.35, vol: 0.035, delay: i * 0.07 }))),
       rank: gate(() => [784, 988, 1175, 1568].forEach((f, i) => tone({ freq: f, dur: 0.4, type: 'triangle', vol: 0.04, delay: i * 0.09 }))),
+      hit: gate(() => {
+        noise({ dur: 0.35, vol: 0.09 });
+        tone({ freq: 150, to: 45, dur: 0.45, type: 'sawtooth', vol: 0.08 });
+        [880, 1320, 1760].forEach((f, i) => tone({ freq: f, dur: 0.25, type: 'square', vol: 0.025, delay: 0.3 + i * 0.07 }));
+      }),
     };
   })();
 
@@ -291,7 +297,7 @@
             <p class="ftr__big">Follow</p>
             <a class="btn btn--solid" href="${LINKEDIN}" target="_blank" rel="noopener">LinkedIn ▶</a>
           </div>
-          <nav class="ftr__nav" aria-label="Footer">${PAGES.map((p) => `<a href="${url(p.href)}">${p.label}</a>`).join('')}</nav>
+          <nav class="ftr__nav" aria-label="Footer">${PAGES.map((p) => `<a href="${url(p.href)}">${p.label}</a>`).join('')}<button class="ftr__trophies" type="button" data-trophies-open>${ICON.trophy}Trophies <b data-trophy-count></b></button></nav>
           <p class="ftr__note">
             <span>© <span data-year></span> Lasse Meerburg · Game Producer · Breda, NL</span>
             <span>Design concept inspired by Persona 3 Reload. Fan-made, not affiliated with ATLUS or SEGA.</span>
@@ -305,11 +311,31 @@
         <div class="menu__cal"><div class="cal" data-cal></div></div>
         <nav class="menu__list" aria-label="Menu">${menuItems}</nav>
         <p class="menu__hint"><kbd>↑↓</kbd> Select · <kbd>Enter</kbd> Confirm · <kbd>Esc</kbd> Back</p>
+        <button class="btn menu__trophies" type="button" data-trophies-open>${ICON.trophy}Trophies <b data-trophy-count></b></button>
         <button class="btn menu__close" type="button" data-menu-close>Close ✕</button>
       </div>
       <div class="dh-flash" aria-hidden="true"><div class="dh-flash__time"></div><div class="dh-flash__sub"></div></div>
       <div class="dh-stamp" aria-hidden="true">${clockSVG()}<b class="dh-stamp__time"></b><span class="dh-stamp__sub"></span></div>
-      <div class="wipe" aria-hidden="true"><i></i><i></i><i></i><div class="wipe__label"><b></b><span>Now loading</span></div></div>`);
+      <div class="finisher" aria-hidden="true">
+        <div class="finisher__bg"></div><div class="finisher__lines"></div>
+        <svg class="finisher__ink" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"></svg>
+        <div class="finisher__slash finisher__slash--1"></div><div class="finisher__slash finisher__slash--2"></div><div class="finisher__slash finisher__slash--3"></div>
+        <p class="finisher__text"><b>Let's</b><b>team up!</b></p>
+      </div>
+      <div class="trophies" role="dialog" aria-modal="true" aria-labelledby="trophies-title" hidden>
+        <div class="trophies__panel">
+          <div class="trophies__head">
+            <h2 class="trophies__title" id="trophies-title">Trophies</h2>
+            <span class="trophies__count" data-trophy-count></span>
+            <button class="btn trophies__close" type="button" data-trophies-close>Close ✕</button>
+          </div>
+          <div class="trophies__bar" aria-hidden="true"><i data-trophy-bar></i></div>
+          <ul class="trophy-list" data-trophies></ul>
+        </div>
+      </div>
+      <div class="toasts" role="status" aria-live="polite"></div>
+      <div class="pad-bar" aria-hidden="true" hidden></div>
+      <div class="wipe" aria-hidden="true"><i></i><i></i><i></i><div class="wipe__label"><b></b><span>Now loading</span><p class="wipe__tip"><i>Tip</i><span></span></p></div></div>`);
 
     $$('[data-year]').forEach((el) => { el.textContent = new Date().getFullYear(); });
   }
@@ -323,6 +349,7 @@
       sfx.set(!sfx.on);
       sync();
       sfx.chime();
+      if (sfx.on) unlock('sfx');
     });
 
     let hoverEl = null;
@@ -423,6 +450,7 @@
     btn.addEventListener('click', () => {
       const dark = doc.dataset.theme !== 'dark-hour';
       store.set('p3-theme', dark ? 'dark-hour' : 'day');
+      if (dark) unlock('dark');
       if (reduceMotion) { apply(dark); return; }
       if (dark) sfx.bell(); else sfx.chime();
 
@@ -478,6 +506,7 @@
       items.forEach((el) => el.classList.remove('is-confirm'));
       setActive(idx);
       sfx.open();
+      unlock('menu');
     };
 
     const close = () => {
@@ -504,7 +533,7 @@
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); setActive(idx + 1, true, true); }
       else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); setActive(idx - 1, true, true); }
       else if (e.key === 'Tab') {
-        const focusables = [...items, closeBtn];
+        const focusables = [...items, $('.menu__trophies', menu), closeBtn];
         const pos = focusables.indexOf(document.activeElement);
         e.preventDefault();
         focusables[(pos + (e.shiftKey ? -1 : 1) + focusables.length) % focusables.length].focus();
@@ -518,6 +547,7 @@
   function initKeys() {
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
+      if (trophiesApi && trophiesApi.isOpen()) { trophiesApi.close(); return; }
       if (lightboxApi && lightboxApi.isOpen()) { lightboxApi.close(); return; }
       if (!menuApi) return;
       const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable;
@@ -533,25 +563,35 @@
       const p = PROJECTS.find((x) => `${x.slug}.html` === file);
       if (p) return p.title;
     }
+    if (file === 'velvet.html') return 'Velvet Room';
     const pg = PAGES.find((x) => x.href === file);
     return pg ? pg.label : 'Loading';
+  }
+
+  function pickTip() {
+    const last = Number(session.get('p3-last-tip'));
+    let i = Math.floor(Math.random() * TIPS.length);
+    if (i === last) i = (i + 1) % TIPS.length;
+    session.set('p3-last-tip', String(i));
+    return TIPS[i];
   }
 
   function initWipe() {
     const wipe = $('.wipe');
     const label = $('.wipe__label b', wipe);
+    const tipEl = $('.wipe__tip span', wipe);
 
     if (doc.classList.contains('wipe-pending')) {
       const arriving = session.get('p3-wipe');
       label.textContent = session.get('p3-wipe-label') || 'Lasse Meerburg';
+      tipEl.textContent = session.get('p3-wipe-tip') || pickTip();
       if (!arriving) wipe.classList.add('is-intro');
       wipe.classList.add('is-out');
       doc.classList.remove('wipe-pending');
-      session.del('p3-wipe');
-      session.del('p3-wipe-label');
-      setTimeout(() => wipe.classList.remove('is-out', 'is-intro'), arriving ? 1100 : 1700);
+      ['p3-wipe', 'p3-wipe-label', 'p3-wipe-tip'].forEach((k) => session.del(k));
+      setTimeout(() => wipe.classList.remove('is-out', 'is-intro'), arriving ? 1300 : 1900);
       if (!reduceMotion) {
-        const hold = arriving ? 420 : 1050;
+        const hold = arriving ? 620 : 1150;
         revealGate = performance.now() + hold;
         doc.classList.add('is-arriving');
         setTimeout(() => doc.classList.remove('is-arriving'), hold);
@@ -568,24 +608,37 @@
       }
     });
 
-    if (reduceMotion) return;
+    if (!reduceMotion) {
+      goTo = (href, text) => {
+        const dest = new URL(href, location.href);
+        label.textContent = text || labelFor(dest);
+        tipEl.textContent = pickTip();
+        session.set('p3-wipe', '1');
+        session.set('p3-wipe-label', label.textContent);
+        session.set('p3-wipe-tip', tipEl.textContent);
+        sfx.whoosh();
+        wipe.classList.remove('is-out', 'is-intro');
+        wipe.classList.add('is-in');
+        setTimeout(() => { location.href = dest.href; }, 700);
+      };
+    }
 
     document.addEventListener('click', (e) => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = e.target.closest('a[href]');
-      if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+      if (!a) return;
+      if (a.hasAttribute('data-finisher') || /linkedin\.com/.test(a.href)) unlock('teamup');
+      if (reduceMotion || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
       const dest = new URL(a.href, location.href);
       if (!/^https?:$/.test(dest.protocol) || dest.origin !== location.origin) return;
       if (dest.pathname === location.pathname && dest.search === location.search) return; // same page / hash link
       e.preventDefault();
-      label.textContent = labelFor(dest);
-      session.set('p3-wipe', '1');
-      session.set('p3-wipe-label', label.textContent);
       if (a.classList.contains('menu__item')) a.classList.add('is-confirm');
-      sfx.whoosh();
-      wipe.classList.remove('is-out', 'is-intro');
-      wipe.classList.add('is-in');
-      setTimeout(() => { location.href = dest.href; }, 680);
+      if (a.hasAttribute('data-finisher') && finisherApi) {
+        finisherApi.play(() => goTo(dest.href));
+        return;
+      }
+      goTo(dest.href);
     });
   }
 
@@ -636,7 +689,7 @@
   }
 
   /* ---------- Reveal, stagger, misc observers --------------------------- */
-  const STAGGER = '.checklist, .facts, .params, .skills, .equip, .legend, .hero__stats, .chips, .choices, .meta, .bars, .slink__list, .btn-row, .ftr__nav';
+  const STAGGER = '.checklist, .facts, .params, .skills, .equip, .legend, .hero__stats, .chips, .choices, .meta, .bars, .slink__list, .btn-row, .ftr__nav, .hmenu, .quest__rows, .compendium__group';
 
   function initReveal() {
     $$('[data-reveal]').forEach((el) => onVisible(el, () => el.classList.add('is-in')));
@@ -787,6 +840,7 @@
         countEl.innerHTML = `<b>${pad(i + 1)}</b> / ${pad(quotes.length)}`;
         if (animate && !reduceMotion) { restart(box, 'is-swap'); restart(countEl, 'is-bump'); }
         tw = typewriter(textEl, `“${q.text}”`, 16, box);
+        progress('quote', i);
       };
       const advance = () => { if (tw && !tw.done) tw.finish(); else show(i + 1); };
 
@@ -838,11 +892,21 @@
       a.addEventListener('mouseenter', () => activate(i));
       a.addEventListener('focus', () => activate(i));
       a.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowDown') { e.preventDefault(); sfx.hover(); links[(i + 1) % links.length].focus(); }
-        if (e.key === 'ArrowUp') { e.preventDefault(); sfx.hover(); links[(i - 1 + links.length) % links.length].focus(); }
+        if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+        e.preventDefault();
+        sfx.hover();
+        const vis = $$('.slink__item:not(.is-filtered) a', root);
+        const k = vis.indexOf(a);
+        vis[(k + (e.key === 'ArrowDown' ? 1 : -1) + vis.length) % vis.length].focus();
       });
     });
     wide.addEventListener('change', () => activate(current, true));
+    slinkApi = {
+      refresh() {
+        const vis = links.filter((a) => !a.closest('.is-filtered'));
+        if (vis.length && !vis.includes(links[current])) activate(links.indexOf(vis[0]), true);
+      },
+    };
     current = 0;
     links[0].classList.add('is-active');
     panels.forEach((p, j) => {
@@ -976,6 +1040,7 @@
       lb.hidden = false;
       doc.classList.add('menu-open');
       sfx.open();
+      progress('photo');
       $('.lb__close', lb).focus({ preventScroll: true });
       const ready = img.decode ? img.decode().catch(() => {}) : Promise.resolve();
       ready.then(() => flip(rect, false));
@@ -1130,6 +1195,701 @@
     }, { passive: true });
   }
 
+  /* ======================================================================
+     v3: water shader, home menu, tips, finisher, trophies, controller,
+     Velvet Room, compendium, chapters, CV day-change, analytics
+     ====================================================================== */
+
+  const GOATCOUNTER = 'lmeerburg';
+
+  // Loading-screen tips, all taken from the project write-ups and CV.
+  const TIPS = [
+    'ORTUS cut nearly 80% of its planned levels in week 5, and still shipped a polished game on time.',
+    'Soaked in Sin went from blank page to finished game in 48 hours, with a team of 12.',
+    'Sunbeat City grew from 6 people to 21 after its pitch was approved for full production.',
+    'Project Heist will ship with live big-band jazz, recorded with the Breda Big Band.',
+    'The Production Toolbox holds nine tools, each with an explanation, a template and a demo.',
+    'The Project Heist RACI rule: enable leads to lead, and teams to execute.',
+    'Sunbeat City ran a public early-access playtest on TikTok, Instagram, Reddit and Bluesky.',
+    'The ORTUS soundtrack was licensed for free, by contacting the song\'s producer directly.',
+    'External dependencies don\'t add overhead, they multiply it. (Project Heist)',
+    'The Production Guild meets every Friday so BUas producers can share what they learn.',
+    'Off duty, Lasse is usually cycling or playing D&D.',
+    'Press Esc anywhere to open the menu. Arrow keys and Enter work there too.',
+    'Plug in a controller: the whole site can be played with a gamepad.',
+    'Some rooms aren\'t on any map. ↑ ↑ ↓ ↓ ← → ← → B A',
+  ];
+
+  let goTo = (href) => { location.href = href; };
+  let finisherApi = null;
+  let trophiesApi = null;
+  let slinkApi = null;
+  let konamiFeed = null;
+
+  /* ---------- Trophies (achievements) ------------------------------------ */
+  const TROPHIES = [
+    { id: 'start', name: 'New Game', desc: 'Visit the site for the first time.' },
+    { id: 'menu', name: 'Pause Menu', desc: 'Open the menu.' },
+    { id: 'dark', name: 'The Dark Hour', desc: 'Enter the Dark Hour.' },
+    { id: 'sfx', name: 'Sound Check', desc: 'Turn on sound effects.' },
+    { id: 'status', name: 'Status Check', desc: 'Visit the About page.' },
+    { id: 'calendar', name: 'Time Flies', desc: 'Read the CV.' },
+    { id: 'links', name: 'Social Butterfly', desc: 'Open all five project pages.' },
+    { id: 'chat', name: 'Party Chat', desc: 'Read five testimonials.' },
+    { id: 'photo', name: 'Shutterbug', desc: 'Open five images in the viewer.' },
+    { id: 'teamup', name: 'All-Out', desc: 'Ask to team up.' },
+    { id: 'pad', name: 'Player Two', desc: 'Connect a controller.' },
+    { id: 'moon', name: 'Full Moon', desc: 'Visit on the night of a full moon.' },
+    { id: 'velvet', name: 'Velvet Room Guest', desc: 'Find the hidden room.' },
+    { id: 'all', name: 'Completionist', desc: 'Unlock every other trophy.' },
+  ];
+  let achApi = null;
+  function unlock(id) { if (achApi) achApi.unlock(id); }
+  function progress(kind, value) { if (achApi) achApi.progress(kind, value); }
+
+  function initAchievements() {
+    const read = (k, d) => { try { return JSON.parse(store.get(k) || 'null') || d; } catch { return d; } };
+    const got = read('p3-trophies', {});
+    const prog = Object.assign({ projects: [], photos: 0, quotes: [] }, read('p3-trophy-progress', {}));
+    const save = () => {
+      store.set('p3-trophies', JSON.stringify(got));
+      store.set('p3-trophy-progress', JSON.stringify(prog));
+    };
+    const region = $('.toasts');
+    const queue = [];
+    let busy = false;
+
+    const count = () => TROPHIES.filter((t) => got[t.id]).length;
+    const render = () => {
+      $$('[data-trophy-count]').forEach((el) => { el.textContent = `${count()}/${TROPHIES.length}`; });
+      $$('[data-trophies]').forEach((list) => {
+        list.innerHTML = TROPHIES.map((t) => {
+          const on = !!got[t.id];
+          return `<li class="trophy${on ? ' is-unlocked' : ''}"><span class="trophy__icon" aria-hidden="true">${ICON.trophy}</span>
+            <span class="trophy__name">${on ? t.name : '? ? ?'}</span><span class="trophy__desc">${t.desc}</span>
+            <span class="sr-only">${on ? 'Unlocked' : 'Locked'}</span></li>`;
+        }).join('');
+      });
+      $$('[data-trophy-bar]').forEach((el) => el.style.setProperty('--v', `${(count() / TROPHIES.length) * 100}%`));
+    };
+
+    const showNext = () => {
+      if (busy || !queue.length) return;
+      const wait = revealGate - performance.now();
+      if (wait > 0) { setTimeout(showNext, wait + 200); return; }
+      busy = true;
+      const t = queue.shift();
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.innerHTML = `<span class="toast__icon" aria-hidden="true">${ICON.trophy}</span><span class="toast__kicker">Trophy unlocked</span><span class="toast__name">${t.name}</span><span class="toast__desc">${t.desc}</span>`;
+      region.append(el);
+      sfx.rank();
+      setTimeout(() => {
+        el.classList.add('is-leaving');
+        setTimeout(() => { el.remove(); busy = false; showNext(); }, reduceMotion ? 0 : 380);
+      }, 3400);
+    };
+
+    const doUnlock = (id) => {
+      const t = TROPHIES.find((x) => x.id === id);
+      if (!t || got[id]) return;
+      got[id] = Date.now();
+      save();
+      queue.push(t);
+      if (id !== 'all' && TROPHIES.every((x) => x.id === 'all' || got[x.id])) doUnlock('all');
+      render();
+      setTimeout(showNext, 300);
+    };
+
+    achApi = {
+      unlock: doUnlock,
+      progress(kind, value) {
+        if (kind === 'project') {
+          if (!prog.projects.includes(value)) { prog.projects.push(value); save(); }
+          if (PROJECTS.every((p) => prog.projects.includes(p.slug))) doUnlock('links');
+        } else if (kind === 'photo') {
+          prog.photos += 1; save();
+          if (prog.photos >= 5) doUnlock('photo');
+        } else if (kind === 'quote') {
+          if (!prog.quotes.includes(value)) { prog.quotes.push(value); save(); }
+          if (prog.quotes.length >= 5) doUnlock('chat');
+        }
+      },
+      render,
+    };
+
+    render();
+    doUnlock('start');
+    if (PAGE === 'about') doUnlock('status');
+    if (PAGE === 'cv') doUnlock('calendar');
+    if (PAGE === 'velvet') doUnlock('velvet');
+    if (document.body.dataset.project) achApi.progress('project', document.body.dataset.project);
+    const phase = moonPhase(new Date());
+    if (phase > 0.47 && phase < 0.53) doUnlock('moon');
+  }
+
+  function initTrophies() {
+    const dlg = $('.trophies');
+    if (!dlg) return;
+    let opener = null;
+    const open = () => {
+      opener = document.activeElement;
+      dlg.hidden = false;
+      doc.classList.add('menu-open');
+      if (achApi) achApi.render();
+      $('.trophies__close', dlg).focus({ preventScroll: true });
+      sfx.open();
+    };
+    const close = () => {
+      if (dlg.hidden) return;
+      dlg.hidden = true;
+      if (!(menuApi && menuApi.isOpen())) doc.classList.remove('menu-open');
+      sfx.back();
+      if (opener && opener.focus) opener.focus({ preventScroll: true });
+    };
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('[data-trophies-open]')) open();
+      else if (e.target.closest('[data-trophies-close]') || e.target === dlg) close();
+    });
+    dlg.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      e.preventDefault();
+      $('.trophies__close', dlg).focus();
+    });
+    trophiesApi = { open, close, isOpen: () => !dlg.hidden };
+  }
+
+  /* ---------- "Let's team up!" finish screen ----------------------------- */
+  function initFinisher() {
+    const el = $('.finisher');
+    if (!el || reduceMotion) return;
+    let blobs = '';
+    for (let i = 0; i < 28; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const d = 26 + Math.random() * 30;
+      const r = 0.8 + Math.random() * (i < 8 ? 7 : 2.5);
+      blobs += `<circle cx="${(50 + Math.cos(a) * d).toFixed(1)}" cy="${(50 + Math.sin(a) * d * 0.62).toFixed(1)}" r="${r.toFixed(1)}"/>`;
+    }
+    $('.finisher__ink', el).innerHTML = blobs;
+    finisherApi = {
+      play(done) {
+        sfx.hit();
+        restart(el, 'is-on');
+        setTimeout(shake, 280);
+        setTimeout(done, 1250);
+      },
+    };
+    window.addEventListener('pageshow', (e) => { if (e.persisted) el.classList.remove('is-on'); });
+  }
+
+  /* ---------- Home: main-menu hero --------------------------------------- */
+  function initHeroMenu() {
+    const nav = $('.hmenu');
+    if (!nav) return;
+    const items = $$('.hmenu__item', nav);
+    let idx = 0;
+    const set = (i, focus) => {
+      idx = (i + items.length) % items.length;
+      items.forEach((el, j) => el.classList.toggle('is-active', j === idx));
+      if (focus) items[idx].focus({ preventScroll: true });
+    };
+    items.forEach((el, i) => {
+      el.addEventListener('mouseenter', () => set(i));
+      el.addEventListener('focus', () => set(i));
+    });
+    nav.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); sfx.hover(); set(idx + 1, true); }
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); sfx.hover(); set(idx - 1, true); }
+    });
+    set(0);
+
+    const hero = $('.hero');
+    const cut = $('.hero__cutout');
+    if (cut) {
+      const fail = () => hero.classList.add('no-cutout');
+      if (cut.complete && !cut.naturalWidth) fail();
+      cut.addEventListener('error', fail);
+    }
+  }
+
+  /* ---------- Project pages: chapter list -------------------------------- */
+  function initChapters() {
+    if (PAGE !== 'project') return;
+    const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const targets = [];
+    const add = (el, num, text) => {
+      if (!el) return;
+      if (!el.id) el.id = slug(text);
+      targets.push({ el, num, text });
+    };
+    add($('#quest'), '◆', 'Quest log');
+    add($('#summary-title') && $('#summary-title').closest('section'), '≡', 'Summary');
+    $$('.h3').forEach((h) => {
+      const num = $('.h3__num', h);
+      const n = num ? num.textContent.trim() : '•';
+      add(h, n, h.textContent.trim().replace(n, '').trim());
+    });
+    add($('#takeaways-title') && $('#takeaways-title').closest('section'), '★', 'Takeaways');
+    if (targets.length < 3) return;
+
+    const nav = document.createElement('nav');
+    nav.className = 'chapters is-away';
+    nav.setAttribute('aria-label', 'Sections on this page');
+    nav.innerHTML = `<ol>${targets.map((t) => `<li><a href="#${t.el.id}"><span class="chapters__num">${t.num}</span><span class="chapters__label">${t.text}</span></a></li>`).join('')}</ol>`;
+    document.body.append(nav);
+    const links = $$('a', nav);
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const line = window.innerHeight * 0.4;
+      let active = 0;
+      targets.forEach((t, i) => { if (t.el.getBoundingClientRect().top < line) active = i; });
+      links.forEach((a, i) => a.classList.toggle('is-active', i === active));
+      nav.classList.toggle('is-away', window.scrollY < window.innerHeight * 0.5);
+    };
+    window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    update();
+  }
+
+  /* ---------- Projects index: compendium filters & sort ------------------ */
+  function initCompendium() {
+    const root = $('[data-slink]');
+    const bar = $('.compendium');
+    if (!root || !bar) return;
+    const list = $('.slink__list', root);
+    const stage = $('.slink__stage', root);
+    const items = $$('.slink__item', list);
+    const panels = $$('.slink__panel', stage);
+    const countEl = $('.compendium__count', bar);
+    let filter = 'all';
+    let sort = 'featured';
+    const key = (el) => ({ order: +el.dataset.order, num: +el.dataset.num, date: el.dataset.date, team: +el.dataset.team });
+    const sorters = {
+      featured: (a, b) => a.order - b.order,
+      arcana: (a, b) => a.num - b.num,
+      newest: (a, b) => b.date.localeCompare(a.date),
+      team: (a, b) => b.team - a.team,
+    };
+    const match = (el) => filter === 'all' || el.dataset.tags.split(' ').includes(filter);
+
+    const apply = (animate) => {
+      const first = new Map(items.map((el) => [el, el.getBoundingClientRect()]));
+      const by = (a, b) => sorters[sort](key(a), key(b));
+      [...items].sort(by).forEach((el) => list.append(el));
+      [...panels].sort(by).forEach((el) => stage.append(el));
+      items.forEach((el) => el.classList.toggle('is-filtered', !match(el)));
+      panels.forEach((el) => el.classList.toggle('is-filtered', !match(el)));
+      if (animate && !reduceMotion && Element.prototype.animate) {
+        items.forEach((el) => {
+          if (el.classList.contains('is-filtered')) return;
+          const a = first.get(el);
+          const b = el.getBoundingClientRect();
+          if (!a.height) {
+            el.animate([{ opacity: 0, transform: 'translateX(-30px) scale(.92)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.34,1.56,.64,1)' });
+          } else if (Math.abs(a.top - b.top) > 1) {
+            el.animate([{ transform: `translateY(${a.top - b.top}px)` }, { transform: 'none' }], { duration: 480, easing: 'cubic-bezier(.2,.9,.2,1)' });
+          }
+        });
+      }
+      const n = items.filter((el) => !el.classList.contains('is-filtered')).length;
+      countEl.innerHTML = `<b>${n}</b> / ${items.length} registered`;
+      if (slinkApi) slinkApi.refresh();
+    };
+
+    bar.addEventListener('click', (e) => {
+      const b = e.target.closest('.ctag');
+      if (!b) return;
+      if (b.dataset.filter) {
+        filter = b.dataset.filter;
+        $$('[data-filter]', bar).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      }
+      if (b.dataset.sort) {
+        sort = b.dataset.sort;
+        $$('[data-sort]', bar).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      }
+      apply(true);
+    });
+    apply(false);
+  }
+
+  /* ---------- CV: calendar day-change ------------------------------------ */
+  function initDayCal() {
+    const cal = $('.daycal');
+    if (!cal) return;
+    const mdEl = $('.daycal__md', cal);
+    const dowEl = $('.daycal__dow', cal);
+    const yearEl = $('.daycal__year', cal);
+    const moonEl = $('.daycal__moon', cal);
+    const phaseEl = $('.daycal__phase', cal);
+    const evEl = $('.daycal__event', cal);
+    const fx = $('.daycal__fx', cal);
+
+    const render = (d, flip) => {
+      const day = d.getDay();
+      mdEl.textContent = `${d.getMonth() + 1}/${d.getDate()}`;
+      dowEl.textContent = DAYS[day];
+      dowEl.dataset.day = day;
+      yearEl.textContent = d.getFullYear();
+      const p = moonPhase(d);
+      moonEl.innerHTML = moonSVG(p);
+      phaseEl.textContent = PHASES[Math.round(p * 8) % 8];
+      cal.classList.remove('is-vague');
+      if (flip) restart(mdEl, 'is-flip');
+    };
+    const today = new Date();
+    let cur = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    render(cur, false);
+    evEl.textContent = 'Today';
+    let timer = 0;
+
+    const go = (tl) => {
+      clearInterval(timer);
+      cal.classList.remove('is-running');
+      evEl.textContent = tl.dataset.title;
+      restart(evEl, 'is-swap');
+      const parts = tl.dataset.date.split('-').map(Number);
+      if (parts.length < 2) {
+        // Year-only entries: no exact start date to show.
+        mdEl.textContent = String(parts[0]);
+        yearEl.textContent = tl.dataset.span || '';
+        cal.classList.add('is-vague');
+        restart(mdEl, 'is-flip');
+        return;
+      }
+      const target = new Date(parts[0], parts[1] - 1, 1);
+      const months = (target.getFullYear() - cur.getFullYear()) * 12 + (target.getMonth() - cur.getMonth());
+      if (!months || reduceMotion) { cur = target; render(cur, true); return; }
+      fx.textContent = months > 0 ? '▶▶ Time passes' : '◀◀ Rewinding';
+      cal.classList.add('is-running');
+      const start = cur;
+      const steps = Math.min(Math.abs(months), 18);
+      let k = 0;
+      timer = setInterval(() => {
+        k += 1;
+        const m = Math.round((months * k) / steps);
+        render(new Date(start.getFullYear(), start.getMonth() + m, 1), true);
+        sfx.blip();
+        if (k >= steps) {
+          clearInterval(timer);
+          cur = target;
+          render(cur, true);
+          cal.classList.remove('is-running');
+        }
+      }, 70);
+    };
+
+    const entries = $$('.tl[data-date]');
+    if (!('IntersectionObserver' in window)) return;
+    const watch = new IntersectionObserver((list) => {
+      list.forEach((en) => { if (en.isIntersecting) go(en.target); });
+    }, { rootMargin: '-38% 0px -52% 0px' });
+    entries.forEach((el) => watch.observe(el));
+  }
+
+  /* ---------- Background: live water caustics (WebGL) -------------------- */
+  function initCaustics() {
+    if (reduceMotion) return;
+    if (navigator.connection && navigator.connection.saveData) return;
+    const bg = $('.bg');
+    const canvas = document.createElement('canvas');
+    canvas.className = 'bg__caustics';
+    const gl = canvas.getContext('webgl', { alpha: true, antialias: false, depth: false, powerPreference: 'low-power' });
+    if (!gl) return;
+
+    const vs = 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }';
+    const fs = `precision mediump float;
+uniform vec2 uRes; uniform float uTime; uniform vec3 uColor; uniform vec2 uMouse;
+vec2 h2(vec2 p){ p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3))); return fract(sin(p) * 43758.5453); }
+float cell(vec2 x, float t){
+  vec2 n = floor(x), f = fract(x);
+  float f1 = 8.0, f2 = 8.0;
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      vec2 g = vec2(float(i), float(j));
+      vec2 o = 0.5 + 0.45 * sin(t + 6.2831 * h2(n + g));
+      vec2 r = g + o - f;
+      float d = dot(r, r);
+      if (d < f1) { f2 = f1; f1 = d; } else if (d < f2) { f2 = d; }
+    }
+  }
+  return sqrt(f2) - sqrt(f1);
+}
+void main(){
+  vec2 uv = gl_FragCoord.xy / uRes.y;
+  float t = uTime * 0.35;
+  vec2 p = uv * vec2(3.0, 4.0);
+  p += 0.22 * vec2(sin(p.y * 1.7 + t * 1.3), cos(p.x * 1.4 - t * 1.1));
+  vec2 dm = uv - uMouse;
+  p += normalize(dm + 1e-4) * 0.12 * exp(-dot(dm, dm) * 18.0);
+  float c1 = 1.0 - smoothstep(0.0, 0.11, cell(p, t));
+  float c2 = 1.0 - smoothstep(0.0, 0.08, cell(p * 1.7 + 4.0, t * 1.4));
+  float c = pow(c1 * 0.75 + c2 * 0.45, 1.6);
+  float depth = gl_FragCoord.y / uRes.y;
+  float a = c * (0.15 + 0.85 * smoothstep(0.0, 1.0, depth));
+  gl_FragColor = vec4(uColor * a, a);
+}`;
+    const compile = (type, src) => {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+      return s;
+    };
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vs));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+    gl.useProgram(prog);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, 'p');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    const uRes = gl.getUniformLocation(prog, 'uRes');
+    const uTime = gl.getUniformLocation(prog, 'uTime');
+    const uColor = gl.getUniformLocation(prog, 'uColor');
+    const uMouse = gl.getUniformLocation(prog, 'uMouse');
+
+    const hexToRgb = (hex) => {
+      const m = hex.trim().match(/^#?([0-9a-f]{6})$/i);
+      if (!m) return [0.25, 0.86, 1];
+      const n = parseInt(m[1], 16);
+      return [(n >> 16) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+    };
+    const setColor = () => gl.uniform3fv(uColor, hexToRgb(getComputedStyle(doc).getPropertyValue('--cyan')));
+    new MutationObserver(setColor).observe(doc, { attributes: true, attributeFilter: ['data-theme'] });
+
+    const scale = 0.5;
+    const resize = () => {
+      canvas.width = Math.max(1, Math.round(window.innerWidth * scale));
+      canvas.height = Math.max(1, Math.round(window.innerHeight * scale));
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+    };
+    let mx = -10, my = -10, tx = -10, ty = -10;
+    window.addEventListener('pointermove', (e) => {
+      tx = e.clientX / window.innerHeight;
+      ty = (window.innerHeight - e.clientY) / window.innerHeight;
+    }, { passive: true });
+    window.addEventListener('resize', resize);
+    resize();
+    setColor();
+    bg.insertBefore(canvas, $('.bg__rays', bg));
+    doc.classList.add('has-caustics');
+
+    let last = 0;
+    const frame = (now) => {
+      requestAnimationFrame(frame);
+      if (now - last < 30) return; // ~30 fps is plenty for a background
+      last = now;
+      mx += (tx - mx) * 0.08;
+      my += (ty - my) * 0.08;
+      gl.uniform2f(uMouse, mx, my);
+      gl.uniform1f(uTime, now / 1000);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    };
+    requestAnimationFrame(frame);
+  }
+
+  /* ---------- Controller support (Gamepad API) --------------------------- */
+  function initGamepad() {
+    if (!('getGamepads' in navigator)) return;
+    const bar = $('.pad-bar');
+    let raf = 0;
+    const prev = {};
+    const repeat = {};
+
+    const glyphs = (ps) => {
+      const g = ps
+        ? { A: ['✕', 'ps-x'], B: ['○', 'ps-o'], X: ['□', 'ps-s'], Y: ['△', 'ps-t'], LR: 'L1 R1', M: 'Options' }
+        : { A: ['A', 'xb-a'], B: ['B', 'xb-b'], X: ['X', 'xb-x'], Y: ['Y', 'xb-y'], LR: 'LB RB', M: '☰' };
+      const btn = ([t, c]) => `<i class="pad-btn ${c}">${t}</i>`;
+      bar.innerHTML = `<span>${btn(g.A)}Select</span><span>${btn(g.B)}Back</span><span><i class="pad-btn pad-btn--wide">${g.M}</i>Menu</span>`
+        + `<span>${btn(g.Y)}Dark Hour</span><span>${btn(g.X)}SFX</span><span><i class="pad-btn pad-btn--wide">${g.LR}</i>Prev / Next</span><span><i class="pad-btn pad-btn--wide">R</i>Scroll</span>`;
+    };
+
+    const scope = () => {
+      if (trophiesApi && trophiesApi.isOpen()) return $('.trophies');
+      if (lightboxApi && lightboxApi.isOpen()) return $('.lb');
+      if (menuApi && menuApi.isOpen()) return $('#menu');
+      return document.body;
+    };
+    const candidates = () => {
+      const root = scope();
+      return $$('a[href], button:not([disabled]), [tabindex="0"]', root).filter((el) => {
+        if (root === document.body && el.closest('#menu, .lb, .trophies, .pad-bar')) return false;
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden';
+      });
+    };
+    const focusEl = (el) => {
+      if (!el) return;
+      el.focus({ preventScroll: true });
+      // Menus, lists and cards select on hover; mirror that for the pad.
+      el.dispatchEvent(new Event('mouseenter'));
+      el.scrollIntoView({ block: 'center', inline: 'nearest', behavior: reduceMotion ? 'auto' : 'smooth' });
+      sfx.hover();
+    };
+    const move = (dx, dy) => {
+      const items = candidates();
+      const cur = items.includes(document.activeElement) ? document.activeElement : null;
+      // Inside a vertical list (menus, link lists, choices) follow DOM order.
+      const group = cur && dy && cur.closest('.menu__list, .hmenu, .slink__list, .choices, .chapters ol, .talk__ctrl');
+      if (group) {
+        const list = items.filter((el) => group.contains(el));
+        const next = list[list.indexOf(cur) + dy];
+        if (next) { focusEl(next); return; }
+      }
+      if (!cur) {
+        focusEl(items.find((el) => { const r = el.getBoundingClientRect(); return r.top >= 0 && r.bottom <= window.innerHeight; }) || items[0]);
+        return;
+      }
+      const a = cur.getBoundingClientRect();
+      const ax = a.left + a.width / 2;
+      const ay = a.top + a.height / 2;
+      let best = null;
+      let bestScore = Infinity;
+      items.forEach((el) => {
+        if (el === cur) return;
+        const r = el.getBoundingClientRect();
+        const x = r.left + r.width / 2 - ax;
+        const y = r.top + r.height / 2 - ay;
+        const along = x * dx + y * dy;
+        if (along <= 4) return;
+        const score = along + Math.abs(x * dy - y * dx) * 2.5;
+        if (score < bestScore) { bestScore = score; best = el; }
+      });
+      if (best) focusEl(best);
+      else if (dy) window.scrollBy({ top: dy * window.innerHeight * 0.6, behavior: 'smooth' });
+    };
+    const rumble = (gp) => {
+      const act = gp && gp.vibrationActuator;
+      if (act && act.playEffect) act.playEffect('dual-rumble', { duration: 60, strongMagnitude: 0.25, weakMagnitude: 0.6 }).catch(() => {});
+    };
+    const KEY = { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight' };
+    const DIR = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+
+    const onDir = (d) => {
+      doc.classList.add('gamepad-mode');
+      if (konamiFeed) konamiFeed(KEY[d]);
+      move(...DIR[d]);
+    };
+    const onButton = (i, gp) => {
+      doc.classList.add('gamepad-mode');
+      const active = document.activeElement;
+      if (i === 0) {
+        if (konamiFeed) konamiFeed('a');
+        if (active && active !== document.body) { active.click(); rumble(gp); }
+        else move(0, 1);
+      } else if (i === 1) {
+        if (konamiFeed) konamiFeed('b');
+        if (trophiesApi && trophiesApi.isOpen()) trophiesApi.close();
+        else if (lightboxApi && lightboxApi.isOpen()) lightboxApi.close();
+        else if (menuApi && menuApi.isOpen()) menuApi.close();
+        else if (document.referrer.startsWith(location.origin) && history.length > 1) history.back();
+      } else if (i === 9) {
+        if (menuApi) (menuApi.isOpen() ? menuApi.close() : menuApi.open());
+      } else if (i === 3) {
+        $('#dh-btn').click();
+      } else if (i === 2) {
+        $('#sfx-btn').click();
+      } else if (i === 4 || i === 5) {
+        const dir = i === 4 ? 0 : 1;
+        if (lightboxApi && lightboxApi.isOpen()) $(dir ? '.lb__next' : '.lb__prev').click();
+        else {
+          const link = $$('#project-nav a')[dir];
+          if (link) link.click();
+        }
+      }
+    };
+
+    const pressed = (gp, i) => !!(gp.buttons[i] && gp.buttons[i].pressed);
+    const loop = (t) => {
+      const pads = [...navigator.getGamepads()].filter(Boolean);
+      if (!pads.length) { raf = 0; return; }
+      const gp = pads[0];
+      const ax = gp.axes[0] || 0;
+      const ay = gp.axes[1] || 0;
+      const dirs = {
+        up: pressed(gp, 12) || ay < -0.6,
+        down: pressed(gp, 13) || ay > 0.6,
+        left: pressed(gp, 14) || ax < -0.6,
+        right: pressed(gp, 15) || ax > 0.6,
+      };
+      Object.keys(dirs).forEach((d) => {
+        if (!dirs[d]) { delete repeat[d]; return; }
+        if (!repeat[d]) { repeat[d] = t + 380; onDir(d); } else if (t >= repeat[d]) { repeat[d] = t + 130; onDir(d); }
+      });
+      [0, 1, 2, 3, 4, 5, 9].forEach((i) => {
+        const on = pressed(gp, i);
+        if (on && !prev[i]) onButton(i, gp);
+        prev[i] = on;
+      });
+      const ry = gp.axes[3] || 0;
+      if (Math.abs(ry) > 0.2) window.scrollBy(0, ry * 22);
+      raf = requestAnimationFrame(loop);
+    };
+
+    window.addEventListener('gamepadconnected', (e) => {
+      const id = e.gamepad.id || '';
+      glyphs(/054c|playstation|dualsense|dualshock/i.test(id) || (/wireless controller/i.test(id) && !/xbox|045e/i.test(id)));
+      bar.hidden = false;
+      doc.classList.add('gamepad-mode');
+      unlock('pad');
+      if (!raf) raf = requestAnimationFrame(loop);
+    });
+    window.addEventListener('gamepaddisconnected', () => {
+      if (![...navigator.getGamepads()].some(Boolean)) { bar.hidden = true; doc.classList.remove('gamepad-mode'); }
+    });
+    document.addEventListener('pointerdown', () => doc.classList.remove('gamepad-mode'));
+  }
+
+  /* ---------- Konami code → Velvet Room ---------------------------------- */
+  function initKonami() {
+    const code = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    let pos = 0;
+    konamiFeed = (key) => {
+      if (key === code[pos]) pos += 1;
+      else pos = key === code[0] ? 1 : 0;
+      if (pos === code.length) {
+        pos = 0;
+        unlock('velvet');
+        sfx.rank();
+        if (PAGE !== 'velvet') goTo(url('velvet.html'), 'Velvet Room');
+      }
+    };
+    document.addEventListener('keydown', (e) => {
+      if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+      konamiFeed(e.key.length === 1 ? e.key.toLowerCase() : e.key);
+    });
+  }
+
+  /* ---------- Velvet Room page ------------------------------------------- */
+  function initVelvet() {
+    if (PAGE !== 'velvet') return;
+    const floor = $('.floor b');
+    if (!floor || reduceMotion) return;
+    let n = 1;
+    setInterval(() => {
+      n = n >= 99 ? 1 : n + 1;
+      floor.textContent = `${pad(n)}F`;
+      restart(floor, 'is-tick');
+    }, 1400);
+  }
+
+  /* ---------- Analytics (GoatCounter, cookie-free) ----------------------- */
+  function initAnalytics() {
+    if (!GOATCOUNTER || /^(localhost|127\.)/.test(location.hostname) || location.protocol === 'file:') return;
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://gc.zgo.at/count.js';
+    s.dataset.goatcounter = `https://${GOATCOUNTER}.goatcounter.com/count`;
+    document.head.append(s);
+  }
+
   /* ---------- Boot ------------------------------------------------------- */
   // Each feature boots on its own so one failure can't take the page down.
   const run = (fn) => {
@@ -1142,9 +1902,10 @@
   renderCals();
   setInterval(renderCals, 60000);
   [
-    initSfx, initScroll, initDarkHour, initMenu, initLightbox, initKeys, initWipe,
-    initSplit, initCards, initReveal, initCounters, initTypewriters, initTalk,
-    initSocialLinks, initChat, initRankUp, initProjectNav, initTilt,
-    initSplash, initMagnet, initPointerParallax,
+    initAchievements, initSfx, initScroll, initDarkHour, initMenu, initTrophies, initLightbox,
+    initKeys, initWipe, initFinisher, initChapters, initHeroMenu, initSplit, initCards,
+    initReveal, initCounters, initTypewriters, initTalk, initSocialLinks, initCompendium,
+    initChat, initRankUp, initProjectNav, initDayCal, initTilt, initSplash, initMagnet,
+    initPointerParallax, initCaustics, initGamepad, initKonami, initVelvet, initAnalytics,
   ].forEach(run);
 })();
