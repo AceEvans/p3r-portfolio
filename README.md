@@ -8,35 +8,23 @@ All content (text, project write-ups, images, testimonials) is from the existing
 
 | Page | Idea |
 | --- | --- |
-| `index.html` | Main-menu hero with a cut-out of Lasse, dialogue intro with a speaking portrait and choices, project rows with Arcana cards, testimonial carousel |
-| `projects.html` | Compendium: Social Link list with live preview, filters (role, engine) and sorting (Arcana №, newest, team size) |
-| `about.html` | Status screen: parameters, team-size bars, skills, equipment, full testimonial backlog |
-| `cv.html` | Curriculum Vitae as a timeline with a sticky calendar that "rewinds" through the dates as you scroll |
-| `contact.html` | In-game phone chat |
-| `projects/*.html` | One page per project: quest log (role / challenge / what I did / result), summary, producer work, chapter list, lightbox gallery, "Rank up" takeaways, per-project accent colour |
-| `velvet.html` | Hidden room (Konami code ↑↑↓↓←→←→BA) with off-duty facts and the trophy compendium |
+| `index.html` | Main-menu hero with a cut-out of Lasse, intro dialogue with a speaking portrait and link choices, projects (newest first), testimonial carousel |
+| `projects.html` | Project list with live preview, filters (released games, Unreal Engine, system design) and sorting (newest, oldest, team size) |
+| `about.html` | Profile, team sizes, skills, tools and all testimonials |
+| `cv.html` | Curriculum Vitae timeline with a sticky calendar that points at the entry you're reading |
+| `contact.html` | Phone-chat contact page |
+| `projects/*.html` | One page per project: at-a-glance box (role / challenge / what I did / result), summary, producer work, chapter list, lightbox gallery, takeaways, newer/older links, per-project accent colour |
+| `velvet.html` | Hidden room (Konami code ↑↑↓↓←→←→BA) |
 
 ## Interactions
 
-- **Esc** opens the full-screen pause-style menu (arrow keys + Enter to navigate)
-- **Dark Hour** button switches the palette with a circular reveal and a clock stamp (it switches on automatically between 00:00 and 01:00 unless you have picked a theme). Link straight to it with `?theme=dark-hour`
-- **SFX** button turns on synthesised UI sounds (Web Audio, no audio files; off by default)
+- **Esc** opens the full-screen menu (arrow keys + Enter). It also holds the **Extras**: the green *Dark Hour* theme and optional synthesised sound effects (both off by default)
 - **Controller support**: browse with an Xbox or PlayStation pad (Gamepad API), with on-screen button prompts
-- **Trophies**: 14 achievements for exploring, saved per visitor; see them from the menu or the footer
-- Live date, moon phase and time of day in the header
+- The header hides while you scroll down and comes back when you scroll up or move the mouse to the top
 
-## Motion & feedback
+## Motion
 
-- Live WebGL water-caustics background (falls back to CSS when WebGL, motion or data saving is off)
-- First-visit intro and labelled page wipes
-- "Let's team up!" finish screen on the Contact buttons
-- Headings cascade in letter by letter; project titles glitch on hover
-- Arcana cards deal in with a flip from a tarot back, float while idle, tilt and catch a holographic glare under the cursor
-- Lists, chips and stats stagger in; numbers count up; bars fill and glint
-- Images reveal with a sweeping block wipe; the lightbox zooms out of the thumbnail
-- Click splashes, magnetic buttons with a shine sweep and press squash
-- Scroll progress bar, auto-hiding header, back-to-top button, scroll and mouse parallax
-- Everything respects `prefers-reduced-motion`
+Kept deliberately calm after feedback: page wipes, entrance reveals, hover and click feedback, a "Let's team up!" finish screen on the Contact buttons, and a very subtle WebGL water background (CSS fallback when WebGL, motion or data saving is off). Nothing loops or drifts on its own, and everything respects `prefers-reduced-motion`.
 
 ## Under the hood
 

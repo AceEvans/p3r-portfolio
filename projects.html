@@ -32,44 +32,78 @@
   <section class="section" style="padding-top:calc(var(--header-h) + 60px)" aria-labelledby="page-title">
     <div class="wrap">
       <header class="title">
-        <span class="title__kicker">Compendium · Hover to preview, click to open</span>
+        <span class="title__kicker">All projects · Hover to preview, click to open</span>
         <h1 class="title__main" id="page-title">Projects</h1>
       </header>
 
       <div class="compendium" role="toolbar" aria-label="Filter and sort projects">
         <div class="compendium__group">
-          <span class="compendium__label">Filter</span>
+          <span class="compendium__label">Show</span>
           <button class="ctag" type="button" data-filter="all" aria-pressed="true">All</button>
-          <button class="ctag" type="button" data-filter="lead" aria-pressed="false">Lead producer</button>
-          <button class="ctag" type="button" data-filter="sole" aria-pressed="false">Sole producer</button>
-          <button class="ctag" type="button" data-filter="design" aria-pressed="false">System designer</button>
+          <button class="ctag" type="button" data-filter="released" aria-pressed="false">Released games</button>
           <button class="ctag" type="button" data-filter="unreal" aria-pressed="false">Unreal Engine</button>
+          <button class="ctag" type="button" data-filter="design" aria-pressed="false">Also system design</button>
         </div>
         <div class="compendium__group">
           <span class="compendium__label">Sort</span>
-          <button class="ctag" type="button" data-sort="featured" aria-pressed="true">Featured</button>
-          <button class="ctag" type="button" data-sort="arcana" aria-pressed="false">Arcana №</button>
-          <button class="ctag" type="button" data-sort="newest" aria-pressed="false">Newest</button>
+          <button class="ctag" type="button" data-sort="newest" aria-pressed="true">Newest</button>
+          <button class="ctag" type="button" data-sort="oldest" aria-pressed="false">Oldest</button>
           <button class="ctag" type="button" data-sort="team" aria-pressed="false">Team size</button>
         </div>
-        <p class="compendium__count" aria-live="polite"><b>5</b> / 5 registered</p>
+        <p class="compendium__count" aria-live="polite"><b>5</b> / 5 projects</p>
       </div>
 
       <div class="slink" data-slink>
         <ul class="slink__list" aria-label="Projects">
-          <li class="slink__item" data-order="0" data-num="13" data-date="2025-01" data-team="12" data-tags="sole design unreal"><a href="projects/soaked-in-sin.html"><span class="slink__num">XIII</span><span><span class="slink__title">Soaked in Sin</span><span class="slink__arc">Death</span></span><span class="slink__team">12<small>Team</small></span></a></li>
-          <li class="slink__item" data-order="1" data-num="1" data-date="2025-09" data-team="28" data-tags="lead unreal"><a href="projects/project-heist.html"><span class="slink__num">I</span><span><span class="slink__title">Project Heist</span><span class="slink__arc">The Magician</span></span><span class="slink__team">28<small>Team</small></span></a></li>
-          <li class="slink__item" data-order="2" data-num="19" data-date="2025-02" data-team="21" data-tags="lead"><a href="projects/sunbeat-city.html"><span class="slink__num">XIX</span><span><span class="slink__title">Sunbeat City</span><span class="slink__arc">The Sun</span></span><span class="slink__team">21<small>Team</small></span></a></li>
-          <li class="slink__item" data-order="3" data-num="5" data-date="2024-11" data-team="1" data-tags="sole"><a href="projects/production-toolbox.html"><span class="slink__num">V</span><span><span class="slink__title">Production Toolbox</span><span class="slink__arc">The Hierophant</span></span><span class="slink__team">9<small>Tools</small></span></a></li>
-          <li class="slink__item" data-order="4" data-num="7" data-date="2024-04" data-team="13" data-tags="sole design unreal"><a href="projects/ortus.html"><span class="slink__num">VII</span><span><span class="slink__title">ORTUS</span><span class="slink__arc">The Chariot</span></span><span class="slink__team">13<small>Team</small></span></a></li>
+          <li class="slink__item" data-date="2025-09" data-team="28" data-tags="unreal"><a href="projects/project-heist.html"><span class="slink__num">2025</span><span><span class="slink__title">Project Heist</span><span class="slink__arc">Producer</span></span><span class="slink__team">28<small>Team</small></span></a></li>
+          <li class="slink__item" data-date="2025-02" data-team="21" data-tags="released"><a href="projects/sunbeat-city.html"><span class="slink__num">2025</span><span><span class="slink__title">Sunbeat City</span><span class="slink__arc">Producer</span></span><span class="slink__team">21<small>Team</small></span></a></li>
+          <li class="slink__item" data-date="2025-01" data-team="12" data-tags="released design unreal"><a href="projects/soaked-in-sin.html"><span class="slink__num">2025</span><span><span class="slink__title">Soaked in Sin</span><span class="slink__arc">Producer / System Designer</span></span><span class="slink__team">12<small>Team</small></span></a></li>
+          <li class="slink__item" data-date="2024-11" data-team="1" data-tags=""><a href="projects/production-toolbox.html"><span class="slink__num">2024</span><span><span class="slink__title">Production Toolbox</span><span class="slink__arc">Producer · Personal project</span></span><span class="slink__team">9<small>Tools</small></span></a></li>
+          <li class="slink__item" data-date="2024-04" data-team="13" data-tags="released design unreal"><a href="projects/ortus.html"><span class="slink__num">2024</span><span><span class="slink__title">ORTUS</span><span class="slink__arc">Producer / System Designer</span></span><span class="slink__team">13<small>Team</small></span></a></li>
         </ul>
 
         <div class="slink__stage">
-          <article class="slink__panel" data-order="0" data-num="13" data-date="2025-01" data-team="12" data-tags="sole design unreal">
+          <article class="slink__panel" data-date="2025-09" data-team="28" data-tags="unreal">
+            <a class="arcana" href="projects/project-heist.html" data-tilt tabindex="-1" aria-hidden="true" style="--pos:50% 40%">
+              <span class="arcana__num">2025 – 26</span>
+              <span class="arcana__art"><img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/0121efa8-6def-48db-aca3-4c8d348fcbda/Team1Concepting_W3_color.png?format=750w" alt="" width="750" height="422" decoding="async"></span>
+              <span class="arcana__name">Team of 28</span>
+            </a>
+            <div class="slink__info">
+              <p class="proj__role">Producer</p>
+              <h2>Project Heist</h2>
+              <p class="lead">A 6-month turn-based tactics game in Unreal Engine 5. As the producer of a 28-person team, I owned the full production lifecycle, from concepting through outsourcing and full production.</p>
+              <dl class="facts">
+                <div><dt>Genre</dt><dd>Turn-based tactics</dd></div>
+                <div><dt>Engine</dt><dd>Unreal Engine 5</dd></div>
+              </dl>
+              <a class="btn btn--solid" href="projects/project-heist.html">Open project ▶</a>
+            </div>
+          </article>
+
+          <article class="slink__panel" data-date="2025-02" data-team="21" data-tags="released">
+            <a class="arcana" href="projects/sunbeat-city.html" data-tilt tabindex="-1" aria-hidden="true" style="--pos:22% 50%">
+              <span class="arcana__num">2025</span>
+              <span class="arcana__art"><img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/8e9fdb85-05a5-49b3-a9f9-baf64c06954c/Sunbeat+City_Image+%286%29.jpg?format=750w" alt="" width="750" height="432" decoding="async"></span>
+              <span class="arcana__name">Team of 21</span>
+            </a>
+            <div class="slink__info">
+              <p class="proj__role">Producer</p>
+              <h2>Sunbeat City</h2>
+              <p class="lead">A 16-week project that grew from a 6-person design team to 21 developers after a successful pitch. I managed both the product and the people, delivering a polished vertical slice for industry review.</p>
+              <dl class="facts">
+                <div><dt>Framework</dt><dd>Autonomous Agile</dd></div>
+                <div><dt>Status</dt><dd>Published on itch.io</dd></div>
+              </dl>
+              <a class="btn btn--solid" href="projects/sunbeat-city.html">Open project ▶</a>
+            </div>
+          </article>
+
+          <article class="slink__panel" data-date="2025-01" data-team="12" data-tags="released design unreal">
             <a class="arcana" href="projects/soaked-in-sin.html" data-tilt tabindex="-1" aria-hidden="true" style="--fit:contain">
-              <span class="arcana__num">XIII</span>
+              <span class="arcana__num">2025</span>
               <span class="arcana__art"><img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/6c86b7fc-7414-4c3a-ae66-5748085917e9/Soaked+In+Sin+Logo.png?format=750w" alt="" width="750" height="768" decoding="async"></span>
-              <span class="arcana__name">Death</span>
+              <span class="arcana__name">Team of 12</span>
             </a>
             <div class="slink__info">
               <p class="proj__role">Sole Producer / System Designer</p>
@@ -83,47 +117,11 @@
             </div>
           </article>
 
-          <article class="slink__panel" data-order="1" data-num="1" data-date="2025-09" data-team="28" data-tags="lead unreal">
-            <a class="arcana" href="projects/project-heist.html" data-tilt tabindex="-1" aria-hidden="true" style="--pos:50% 40%">
-              <span class="arcana__num">I</span>
-              <span class="arcana__art"><img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/0121efa8-6def-48db-aca3-4c8d348fcbda/Team1Concepting_W3_color.png?format=750w" alt="" width="750" height="422" decoding="async"></span>
-              <span class="arcana__name">The Magician</span>
-            </a>
-            <div class="slink__info">
-              <p class="proj__role">Lead Producer</p>
-              <h2>Project Heist</h2>
-              <p class="lead">A 6-month turn-based tactics game in Unreal Engine 5. As lead producer of a 28-person team, I owned the full production lifecycle, from concepting through outsourcing and full production.</p>
-              <dl class="facts">
-                <div><dt>Genre</dt><dd>Turn-based tactics</dd></div>
-                <div><dt>Engine</dt><dd>Unreal Engine 5</dd></div>
-              </dl>
-              <a class="btn btn--solid" href="projects/project-heist.html">Open project ▶</a>
-            </div>
-          </article>
-
-          <article class="slink__panel" data-order="2" data-num="19" data-date="2025-02" data-team="21" data-tags="lead">
-            <a class="arcana" href="projects/sunbeat-city.html" data-tilt tabindex="-1" aria-hidden="true" style="--pos:22% 50%">
-              <span class="arcana__num">XIX</span>
-              <span class="arcana__art"><img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/8e9fdb85-05a5-49b3-a9f9-baf64c06954c/Sunbeat+City_Image+%286%29.jpg?format=750w" alt="" width="750" height="432" decoding="async"></span>
-              <span class="arcana__name">The Sun</span>
-            </a>
-            <div class="slink__info">
-              <p class="proj__role">Lead Producer</p>
-              <h2>Sunbeat City</h2>
-              <p class="lead">A 16-week project that grew from a 6-person design team to 21 developers after a successful pitch. I managed both the product and the people, delivering a polished vertical slice for industry review.</p>
-              <dl class="facts">
-                <div><dt>Framework</dt><dd>Autonomous Agile</dd></div>
-                <div><dt>Status</dt><dd>Published on itch.io</dd></div>
-              </dl>
-              <a class="btn btn--solid" href="projects/sunbeat-city.html">Open project ▶</a>
-            </div>
-          </article>
-
-          <article class="slink__panel" data-order="3" data-num="5" data-date="2024-11" data-team="1" data-tags="sole">
+          <article class="slink__panel" data-date="2024-11" data-team="1" data-tags="">
             <a class="arcana" href="projects/production-toolbox.html" data-tilt tabindex="-1" aria-hidden="true">
-              <span class="arcana__num">V</span>
+              <span class="arcana__num">2024 – 25</span>
               <span class="arcana__art arcana__art--type"><span class="tt-big">9</span><span class="tt-small">Production<br>tools</span></span>
-              <span class="arcana__name">The Hierophant</span>
+              <span class="arcana__name">Solo project</span>
             </a>
             <div class="slink__info">
               <p class="proj__role">Sole Producer</p>
@@ -137,11 +135,11 @@
             </div>
           </article>
 
-          <article class="slink__panel" data-order="4" data-num="7" data-date="2024-04" data-team="13" data-tags="sole design unreal">
+          <article class="slink__panel" data-date="2024-04" data-team="13" data-tags="released design unreal">
             <a class="arcana" href="projects/ortus.html" data-tilt tabindex="-1" aria-hidden="true" style="--fit:contain">
-              <span class="arcana__num">VII</span>
+              <span class="arcana__num">2024</span>
               <span class="arcana__art arcana__art--fill" style="--art:url('https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/cac41859-4544-452c-8e7e-97a00ee255c0/ORTUS+LOGO+2.png?format=300w')"><img src="https://images.squarespace-cdn.com/content/v1/67a513989b3bf35e9ae5f112/cac41859-4544-452c-8e7e-97a00ee255c0/ORTUS+LOGO+2.png?format=750w" alt="" width="750" height="585" decoding="async"></span>
-              <span class="arcana__name">The Chariot</span>
+              <span class="arcana__name">Team of 13</span>
             </a>
             <div class="slink__info">
               <p class="proj__role">Sole Producer / System Designer</p>

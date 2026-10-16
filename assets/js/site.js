@@ -1,8 +1,9 @@
 /* Lasse Meerburg — portfolio concept. Vanilla JS, no build step.
    Injects the shared chrome (header, menu, background, footer) and wires up
-   the interactions, plus a "juice" layer: split-text reveals, card deals,
-   counters, click splashes, magnetic buttons, parallax,
-   a FLIP lightbox, the Dark Hour circle reveal and optional synth SFX. */
+   the interactions: pause menu with Extras (Dark Hour theme, sound), page
+   wipes, typewriter dialogue, testimonial carousel, project filters,
+   lightbox, card tilt, CV calendar, a subtle water shader, controller
+   support and a hidden room. Every feature boots on its own. */
 (() => {
   'use strict';
   window.__p3 = true;
@@ -13,7 +14,6 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = window.matchMedia('(pointer: fine)').matches;
   const INTERACTIVE = 'a[href], button, [role="button"], [data-tilt], .dialog[tabindex]';
-  const MAGNETIC = '.btn, .choice, .dh-btn, .menu-btn, .sfx-btn, .to-top';
 
   const $ = (sel, el = document) => el.querySelector(sel);
   const $$ = (sel, el = document) => [...el.querySelectorAll(sel)];
@@ -32,21 +32,23 @@
   };
 
   const LINKEDIN = 'https://www.linkedin.com/in/lasse-meerburg-8530b225b/';
+  const GOATCOUNTER = 'lmeerburg';
 
   const PAGES = [
-    { id: 'home', href: 'index.html', label: 'Home', tag: 'Title screen' },
-    { id: 'projects', href: 'projects.html', label: 'Projects', tag: 'Social links' },
-    { id: 'about', href: 'about.html', label: 'About', tag: 'Status' },
-    { id: 'cv', href: 'cv.html', label: 'CV', tag: 'Calendar' },
-    { id: 'contact', href: 'contact.html', label: 'Contact', tag: 'Phone' },
+    { id: 'home', href: 'index.html', label: 'Home', tag: 'Start' },
+    { id: 'projects', href: 'projects.html', label: 'Projects', tag: 'My work' },
+    { id: 'about', href: 'about.html', label: 'About', tag: 'Who I am' },
+    { id: 'cv', href: 'cv.html', label: 'CV', tag: 'Experience' },
+    { id: 'contact', href: 'contact.html', label: 'Contact', tag: 'Get in touch' },
   ];
 
+  // Newest first: this order drives the "newer / older" links on project pages.
   const PROJECTS = [
-    { slug: 'soaked-in-sin', title: 'Soaked in Sin', num: 'XIII', arcana: 'Death' },
-    { slug: 'project-heist', title: 'Project Heist', num: 'I', arcana: 'The Magician' },
-    { slug: 'sunbeat-city', title: 'Sunbeat City', num: 'XIX', arcana: 'The Sun' },
-    { slug: 'production-toolbox', title: 'Production Toolbox', num: 'V', arcana: 'The Hierophant' },
-    { slug: 'ortus', title: 'ORTUS', num: 'VII', arcana: 'The Chariot' },
+    { slug: 'project-heist', title: 'Project Heist', when: '2025 – 2026' },
+    { slug: 'sunbeat-city', title: 'Sunbeat City', when: 'Feb – Jul 2025' },
+    { slug: 'soaked-in-sin', title: 'Soaked in Sin', when: 'Jan 2025' },
+    { slug: 'production-toolbox', title: 'Production Toolbox', when: 'Nov 2024 – Jan 2025' },
+    { slug: 'ortus', title: 'ORTUS', when: 'Apr – Jun 2024' },
   ];
 
   const activeId = PAGE === 'project' ? 'projects' : PAGE;
@@ -55,8 +57,14 @@
     clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 6.5V12l3.5 2.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     speaker: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z" fill="currentColor"/><path class="sfx-wave" d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="sfx-off" d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     up: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 14l7-7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    trophy: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v4.5a5 5 0 0 1-10 0z" fill="currentColor"/><path d="M7 5H4.5a3 3 0 0 0 3 4M17 5h2.5a3 3 0 0 1-3 4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10.5 13.5h3V16H16v3H8v-3h2.5z" fill="currentColor"/></svg>',
   };
+
+  let menuApi = null;
+  let lightboxApi = null;
+  let finisherApi = null;
+  let slinkApi = null;
+  let konamiFeed = null;
+  let goTo = (href) => { location.href = href; };
 
   /* ---------- Visibility (one shared observer) -------------------------- */
   // While the arrival wipe still covers the page, reveals wait for it so the
@@ -176,7 +184,6 @@
         [0, 0.45, 0.9].forEach((d) => tone({ freq: 2200, dur: 0.025, type: 'square', vol: 0.018, delay: d }));
       }),
       chime: gate(() => [1046, 1318, 1568, 2093].forEach((f, i) => tone({ freq: f, dur: 0.35, vol: 0.035, delay: i * 0.07 }))),
-      rank: gate(() => [784, 988, 1175, 1568].forEach((f, i) => tone({ freq: f, dur: 0.4, type: 'triangle', vol: 0.04, delay: i * 0.09 }))),
       hit: gate(() => {
         noise({ dur: 0.35, vol: 0.09 });
         tone({ freq: 150, to: 45, dur: 0.45, type: 'sawtooth', vol: 0.08 });
@@ -184,49 +191,6 @@
       }),
     };
   })();
-
-  /* ---------- Calendar & moon ------------------------------------------ */
-  const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-  const PHASES = ['New Moon', 'Waxing Crescent', 'First Quarter', 'Waxing Gibbous', 'Full Moon', 'Waning Gibbous', 'Last Quarter', 'Waning Crescent'];
-
-  function moonPhase(date) {
-    const synodic = 29.530588853;
-    const knownNew = Date.UTC(2000, 0, 6, 18, 14);
-    const days = (date.getTime() - knownNew) / 86400000;
-    return (((days % synodic) + synodic) % synodic) / synodic; // 0 = new, .5 = full
-  }
-
-  function moonSVG(p) {
-    const r = 10, cx = 12, cy = 12;
-    const rx = Math.abs(Math.cos(p * 2 * Math.PI)) * r;
-    const waxing = p < 0.5;
-    const outerSweep = waxing ? 1 : 0;
-    const innerSweep = waxing ? (p < 0.25 ? 0 : 1) : (p < 0.75 ? 0 : 1);
-    const d = `M${cx} ${cy - r}A${r} ${r} 0 0 ${outerSweep} ${cx} ${cy + r}A${rx.toFixed(2)} ${r} 0 0 ${innerSweep} ${cx} ${cy - r}Z`;
-    const name = PHASES[Math.round(p * 8) % 8];
-    return `<svg class="moon" viewBox="0 0 24 24" role="img" aria-label="${name}"><title>${name}</title><circle class="moon__dark" cx="12" cy="12" r="10"/><path class="moon__lit" d="${d}"/></svg>`;
-  }
-
-  function timeOfDay(h) {
-    if (doc.dataset.theme === 'dark-hour' || h === 0) return 'Dark Hour';
-    if (h < 5) return 'Late Night';
-    if (h < 8) return 'Early Morning';
-    if (h < 12) return 'Morning';
-    if (h < 13) return 'Lunchtime';
-    if (h < 15) return 'Afternoon';
-    if (h < 18) return 'After School';
-    return 'Evening';
-  }
-
-  function calHTML(now = new Date()) {
-    const day = now.getDay();
-    return `<div class="cal__date"><span class="cal__md">${now.getMonth() + 1}/${now.getDate()}</span><span class="cal__dow" data-day="${day}">${DAYS[day]}</span></div>
-      <div class="cal__row">${moonSVG(moonPhase(now))}<span class="cal__tod">${timeOfDay(now.getHours())}</span></div>`;
-  }
-
-  function renderCals() {
-    $$('[data-cal]').forEach((el) => { el.innerHTML = calHTML(); });
-  }
 
   /* ---------- Shared chrome -------------------------------------------- */
   function wavesSVG() {
@@ -237,15 +201,6 @@
       return `<path d="${d}" stroke-opacity="${(0.12 + i * 0.05).toFixed(2)}"/>`;
     }).join('');
     return `<svg viewBox="0 0 2400 300" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5">${lines}</g></svg>`;
-  }
-
-  function bubblesHTML(count) {
-    let out = '';
-    for (let i = 0; i < count; i++) {
-      const s = 4 + Math.random() * 16;
-      out += `<i class="bubble" style="--x:${(Math.random() * 100).toFixed(1)}%;--s:${s.toFixed(1)}px;--d:${(12 + Math.random() * 16).toFixed(1)}s;--delay:${(-Math.random() * 24).toFixed(1)}s;--drift:${(Math.random() * 60 - 30).toFixed(0)}px"></i>`;
-    }
-    return out;
   }
 
   function clockSVG() {
@@ -271,7 +226,6 @@
         <div class="bg__shard bg__shard--1"></div><div class="bg__shard bg__shard--2"></div>
         <div class="bg__rays"></div><div class="bg__moon"></div>
         <div class="bg__waves">${wavesSVG()}</div>
-        <div class="bg__bubbles">${reduceMotion ? '' : bubblesHTML(18)}</div>
         <div class="bg__grain"></div>
       </div>
       <div class="progress" aria-hidden="true"></div>
@@ -282,9 +236,6 @@
           <span class="brand__name">Lasse Meerburg<small>Game Producer</small></span>
         </a>
         <nav class="nav" aria-label="Main">${navLinks}</nav>
-        <div class="cal" data-cal aria-label="Today"></div>
-        <button class="dh-btn" id="dh-btn" type="button" aria-pressed="false" title="Toggle the Dark Hour">${ICON.clock}<span>Dark Hour</span></button>
-        <button class="sfx-btn" id="sfx-btn" type="button" aria-pressed="false" title="Toggle sound effects">${ICON.speaker}<span>SFX</span></button>
         <button class="menu-btn" id="menu-btn" type="button" aria-haspopup="dialog" aria-controls="menu" aria-expanded="false">
           <span class="menu-btn__bars" aria-hidden="true"><i></i><i></i><i></i></span><span>Menu</span><kbd>Esc</kbd>
         </button>
@@ -297,7 +248,7 @@
             <p class="ftr__big">Follow</p>
             <a class="btn btn--solid" href="${LINKEDIN}" target="_blank" rel="noopener">LinkedIn ▶</a>
           </div>
-          <nav class="ftr__nav" aria-label="Footer">${PAGES.map((p) => `<a href="${url(p.href)}">${p.label}</a>`).join('')}<button class="ftr__trophies" type="button" data-trophies-open>${ICON.trophy}Trophies <b data-trophy-count></b></button></nav>
+          <nav class="ftr__nav" aria-label="Footer">${PAGES.map((p) => `<a href="${url(p.href)}">${p.label}</a>`).join('')}</nav>
           <p class="ftr__note">
             <span>© <span data-year></span> Lasse Meerburg · Game Producer · Breda, NL</span>
             <span>Design concept inspired by Persona 3 Reload. Fan-made, not affiliated with ATLUS or SEGA.</span>
@@ -308,10 +259,13 @@
       <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Main menu" hidden>
         <div class="menu__bg" data-menu-close></div>
         <div class="menu__deco" aria-hidden="true">Menu</div>
-        <div class="menu__cal"><div class="cal" data-cal></div></div>
         <nav class="menu__list" aria-label="Menu">${menuItems}</nav>
         <p class="menu__hint"><kbd>↑↓</kbd> Select · <kbd>Enter</kbd> Confirm · <kbd>Esc</kbd> Back</p>
-        <button class="btn menu__trophies" type="button" data-trophies-open>${ICON.trophy}Trophies <b data-trophy-count></b></button>
+        <div class="menu__extras" role="group" aria-labelledby="extras-title">
+          <p class="menu__extras-title" id="extras-title">Extras</p>
+          <button class="dh-btn" id="dh-btn" type="button" aria-pressed="false">${ICON.clock}<span>Dark Hour theme</span><b class="menu__state">Off</b></button>
+          <button class="sfx-btn" id="sfx-btn" type="button" aria-pressed="false">${ICON.speaker}<span>Sound effects</span><b class="menu__state">Off</b></button>
+        </div>
         <button class="btn menu__close" type="button" data-menu-close>Close ✕</button>
       </div>
       <div class="dh-flash" aria-hidden="true"><div class="dh-flash__time"></div><div class="dh-flash__sub"></div></div>
@@ -322,18 +276,6 @@
         <div class="finisher__slash finisher__slash--1"></div><div class="finisher__slash finisher__slash--2"></div><div class="finisher__slash finisher__slash--3"></div>
         <p class="finisher__text"><b>Let's</b><b>team up!</b></p>
       </div>
-      <div class="trophies" role="dialog" aria-modal="true" aria-labelledby="trophies-title" hidden>
-        <div class="trophies__panel">
-          <div class="trophies__head">
-            <h2 class="trophies__title" id="trophies-title">Trophies</h2>
-            <span class="trophies__count" data-trophy-count></span>
-            <button class="btn trophies__close" type="button" data-trophies-close>Close ✕</button>
-          </div>
-          <div class="trophies__bar" aria-hidden="true"><i data-trophy-bar></i></div>
-          <ul class="trophy-list" data-trophies></ul>
-        </div>
-      </div>
-      <div class="toasts" role="status" aria-live="polite"></div>
       <div class="pad-bar" aria-hidden="true" hidden></div>
       <div class="wipe" aria-hidden="true"><i></i><i></i><i></i><div class="wipe__label"><b></b><span>Now loading</span></div></div>`);
 
@@ -343,13 +285,15 @@
   /* ---------- Sound toggle + global hover / press feedback --------------- */
   function initSfx() {
     const btn = $('#sfx-btn');
-    const sync = () => btn.setAttribute('aria-pressed', String(sfx.on));
+    const sync = () => {
+      btn.setAttribute('aria-pressed', String(sfx.on));
+      $('.menu__state', btn).textContent = sfx.on ? 'On' : 'Off';
+    };
     sync();
     btn.addEventListener('click', () => {
       sfx.set(!sfx.on);
       sync();
       sfx.chime();
-      if (sfx.on) unlock('sfx');
     });
 
     let hoverEl = null;
@@ -368,9 +312,6 @@
   }
 
   /* ---------- Scroll: header, progress, back-to-top, parallax ----------- */
-  let menuApi = null;
-  let lightboxApi = null;
-
   function initScroll() {
     const hdr = $('#hdr');
     const bar = $('.progress');
@@ -401,6 +342,10 @@
     window.addEventListener('scroll', () => {
       if (!ticking) { ticking = true; requestAnimationFrame(update); }
     }, { passive: true });
+    // Bring the hidden header back when the pointer heads for the top edge.
+    document.addEventListener('pointermove', (e) => {
+      if (e.clientY < 80) hdr.classList.remove('is-hidden');
+    }, { passive: true });
     hdr.addEventListener('focusin', () => hdr.classList.remove('is-hidden'));
     toTop.addEventListener('click', () => {
       sfx.whoosh();
@@ -418,7 +363,7 @@
     setTimeout(() => main.classList.remove('is-shaking'), 520);
   }
 
-  /* ---------- Dark Hour ------------------------------------------------- */
+  /* ---------- Dark Hour theme -------------------------------------------- */
   function initDarkHour() {
     const btn = $('#dh-btn');
     const flash = $('.dh-flash');
@@ -428,9 +373,9 @@
       if (dark) doc.dataset.theme = 'dark-hour';
       else delete doc.dataset.theme;
       btn.setAttribute('aria-pressed', String(dark));
+      $('.menu__state', btn).textContent = dark ? 'On' : 'Off';
       const meta = $('meta[name="theme-color"]');
       if (meta) meta.setAttribute('content', dark ? '#06170b' : '#051538');
-      renderCals();
     };
 
     const showStamp = (dark) => {
@@ -450,7 +395,6 @@
     btn.addEventListener('click', () => {
       const dark = doc.dataset.theme !== 'dark-hour';
       store.set('p3-theme', dark ? 'dark-hour' : 'day');
-      if (dark) unlock('dark');
       if (reduceMotion) { apply(dark); return; }
       if (dark) sfx.bell(); else sfx.chime();
 
@@ -466,7 +410,7 @@
       }
 
       // Fallback: full-screen flash, then swap the theme underneath it.
-      $('.dh-flash__time', flash).textContent = $('.dh-stamp__time', stamp).textContent = dark ? '12:00' : new Date().toTimeString().slice(0, 5);
+      $('.dh-flash__time', flash).textContent = dark ? '12:00' : new Date().toTimeString().slice(0, 5);
       $('.dh-flash__sub', flash).textContent = dark ? 'The Dark Hour' : 'Back to normal time';
       flash.classList.toggle('dh-flash--day', !dark);
       restart(flash, 'is-on');
@@ -479,6 +423,7 @@
     const menu = $('#menu');
     const openBtn = $('#menu-btn');
     const items = $$('.menu__item', menu);
+    const extras = $$('.menu__extras button', menu);
     const closeBtn = $('.menu__close', menu);
     let idx = Math.max(0, PAGES.findIndex((p) => p.id === activeId));
     let lastFocus = null;
@@ -502,11 +447,9 @@
       doc.classList.add('menu-open');
       $('#hdr').classList.remove('is-hidden');
       openBtn.setAttribute('aria-expanded', 'true');
-      renderCals();
       items.forEach((el) => el.classList.remove('is-confirm'));
       setActive(idx);
       sfx.open();
-      unlock('menu');
     };
 
     const close = () => {
@@ -530,10 +473,11 @@
     });
 
     menu.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); setActive(idx + 1, true, true); }
-      else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); setActive(idx - 1, true, true); }
+      const onItem = items.includes(document.activeElement);
+      if (onItem && (e.key === 'ArrowDown' || e.key === 'ArrowRight')) { e.preventDefault(); setActive(idx + 1, true, true); }
+      else if (onItem && (e.key === 'ArrowUp' || e.key === 'ArrowLeft')) { e.preventDefault(); setActive(idx - 1, true, true); }
       else if (e.key === 'Tab') {
-        const focusables = [...items, $('.menu__trophies', menu), closeBtn];
+        const focusables = [...items, ...extras, closeBtn];
         const pos = focusables.indexOf(document.activeElement);
         e.preventDefault();
         focusables[(pos + (e.shiftKey ? -1 : 1) + focusables.length) % focusables.length].focus();
@@ -547,7 +491,6 @@
   function initKeys() {
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
-      if (trophiesApi && trophiesApi.isOpen()) { trophiesApi.close(); return; }
       if (lightboxApi && lightboxApi.isOpen()) { lightboxApi.close(); return; }
       if (!menuApi) return;
       const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable;
@@ -598,25 +541,23 @@
       }
     });
 
-    if (!reduceMotion) {
-      goTo = (href, text) => {
-        const dest = new URL(href, location.href);
-        label.textContent = text || labelFor(dest);
-        session.set('p3-wipe', '1');
-        session.set('p3-wipe-label', label.textContent);
-        sfx.whoosh();
-        wipe.classList.remove('is-out', 'is-intro');
-        wipe.classList.add('is-in');
-        setTimeout(() => { location.href = dest.href; }, 700);
-      };
-    }
+    if (reduceMotion) return;
+
+    goTo = (href, text) => {
+      const dest = new URL(href, location.href);
+      label.textContent = text || labelFor(dest);
+      session.set('p3-wipe', '1');
+      session.set('p3-wipe-label', label.textContent);
+      sfx.whoosh();
+      wipe.classList.remove('is-out', 'is-intro');
+      wipe.classList.add('is-in');
+      setTimeout(() => { location.href = dest.href; }, 680);
+    };
 
     document.addEventListener('click', (e) => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = e.target.closest('a[href]');
-      if (!a) return;
-      if (a.hasAttribute('data-finisher') || /linkedin\.com/.test(a.href)) unlock('teamup');
-      if (reduceMotion || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+      if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
       const dest = new URL(a.href, location.href);
       if (!/^https?:$/.test(dest.protocol) || dest.origin !== location.origin) return;
       if (dest.pathname === location.pathname && dest.search === location.search) return; // same page / hash link
@@ -630,54 +571,31 @@
     });
   }
 
-  /* ---------- Split-text headings --------------------------------------- */
-  const SPLIT = '.hero__title > span, .title__main, .phero__title, .proj__title a, .slink__info h2, .status__name, .rankup__title, .cta-band h2, .h3';
-
-  function splitText(el) {
-    if (el.classList.contains('is-split')) return;
-    const label = el.textContent.replace(/\s+/g, ' ').trim();
-    let i = 0;
-    const walk = (node) => {
-      [...node.childNodes].forEach((child) => {
-        if (child.nodeType === 1) { walk(child); return; }
-        if (child.nodeType !== 3) return;
-        const frag = document.createDocumentFragment();
-        child.textContent.split(/(\s+)/).forEach((part) => {
-          if (!part) return;
-          if (/^\s+$/.test(part)) { frag.append(document.createTextNode(' ')); return; }
-          const w = document.createElement('span');
-          w.className = 'split-w';
-          w.setAttribute('aria-hidden', 'true');
-          for (const ch of part) {
-            const c = document.createElement('span');
-            c.className = 'split-c';
-            c.style.setProperty('--c', i++);
-            c.textContent = ch;
-            w.append(c);
-          }
-          frag.append(w);
-        });
-        child.replaceWith(frag);
-      });
+  /* ---------- "Let's team up!" finish screen ----------------------------- */
+  function initFinisher() {
+    const el = $('.finisher');
+    if (!el || reduceMotion) return;
+    let blobs = '';
+    for (let i = 0; i < 28; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const d = 26 + Math.random() * 30;
+      const r = 0.8 + Math.random() * (i < 8 ? 7 : 2.5);
+      blobs += `<circle cx="${(50 + Math.cos(a) * d).toFixed(1)}" cy="${(50 + Math.sin(a) * d * 0.62).toFixed(1)}" r="${r.toFixed(1)}"/>`;
+    }
+    $('.finisher__ink', el).innerHTML = blobs;
+    finisherApi = {
+      play(done) {
+        sfx.hit();
+        restart(el, 'is-on');
+        setTimeout(shake, 280);
+        setTimeout(done, 1250);
+      },
     };
-    walk(el);
-    const sr = document.createElement('span');
-    sr.className = 'sr-only';
-    sr.textContent = label;
-    el.prepend(sr);
-    el.classList.add('is-split');
+    window.addEventListener('pageshow', (e) => { if (e.persisted) el.classList.remove('is-on'); });
   }
 
-  function initSplit() {
-    if (reduceMotion) return;
-    $$(SPLIT).forEach((el) => {
-      splitText(el);
-      onVisible(el, () => el.classList.add('is-in'));
-    });
-  }
-
-  /* ---------- Reveal, stagger, misc observers --------------------------- */
-  const STAGGER = '.checklist, .facts, .params, .skills, .equip, .legend, .hero__stats, .chips, .choices, .meta, .bars, .slink__list, .btn-row, .ftr__nav, .hmenu, .quest__rows, .compendium__group';
+  /* ---------- Reveal & stagger ------------------------------------------- */
+  const STAGGER = '.checklist, .facts, .params, .skills, .equip, .legend, .hero__stats, .chips, .choices, .meta, .teams, .slink__list, .btn-row, .ftr__nav, .hmenu, .quest__rows, .compendium__group';
 
   function initReveal() {
     $$('[data-reveal]').forEach((el) => onVisible(el, () => el.classList.add('is-in')));
@@ -691,7 +609,7 @@
     $$('.shot').forEach((el) => onVisible(el, () => el.classList.add('is-in')));
   }
 
-  /* ---------- Arcana cards: back face + deal-in -------------------------- */
+  /* ---------- Cards: back face + deal-in -------------------------------- */
   function initCards() {
     $$('.arcana').forEach((card) => {
       const back = document.createElement('span');
@@ -705,7 +623,7 @@
   /* ---------- Counters --------------------------------------------------- */
   function initCounters() {
     if (reduceMotion) return;
-    $$('.hero__stats b, .bar__val, .slink__team').forEach((el) => {
+    $$('.hero__stats b, .teams b, .slink__team').forEach((el) => {
       const node = el.firstChild;
       if (!node || node.nodeType !== 3) return;
       const m = node.textContent.match(/^(\d+)(.*)$/);
@@ -808,7 +726,7 @@
           <button class="btn" type="button" data-prev>◀ Prev</button>
           <span class="talk__count" aria-hidden="true"></span>
           <button class="btn" type="button" data-next>Next ▶</button>
-          ${talk.dataset.log ? `<a class="btn talk__log" href="${talk.dataset.log}">Full backlog</a>` : ''}
+          ${talk.dataset.log ? `<a class="btn talk__log" href="${talk.dataset.log}">All testimonials</a>` : ''}
         </div>`);
 
       const box = $('.dialog', talk);
@@ -828,7 +746,6 @@
         countEl.innerHTML = `<b>${pad(i + 1)}</b> / ${pad(quotes.length)}`;
         if (animate && !reduceMotion) { restart(box, 'is-swap'); restart(countEl, 'is-bump'); }
         tw = typewriter(textEl, `“${q.text}”`, 16, box);
-        progress('quote', i);
       };
       const advance = () => { if (tw && !tw.done) tw.finish(); else show(i + 1); };
 
@@ -846,7 +763,7 @@
     });
   }
 
-  /* ---------- Social link preview (projects index) ---------------------- */
+  /* ---------- Projects index: list + live preview ----------------------- */
   function initSocialLinks() {
     const root = $('[data-slink]');
     if (!root) return;
@@ -861,7 +778,7 @@
       if (reduceMotion || !wide.matches) return;
       const card = $('.arcana', panel);
       if (card) restart(card, 'is-dealt');
-      $$('.is-split, [data-stagger]', panel).forEach((el) => restart(el, 'is-in'));
+      $$('[data-stagger]', panel).forEach((el) => restart(el, 'is-in'));
     };
 
     const activate = (i, force = false) => {
@@ -891,7 +808,7 @@
     wide.addEventListener('change', () => activate(current, true));
     slinkApi = {
       refresh() {
-        const vis = links.filter((a) => !a.closest('.is-filtered'));
+        const vis = $$('.slink__item:not(.is-filtered) a', root);
         if (vis.length && !vis.includes(links[current])) activate(links.indexOf(vis[0]), true);
       },
     };
@@ -901,6 +818,65 @@
       p.classList.toggle('is-active', j === 0);
       if (wide.matches && j !== 0) p.setAttribute('aria-hidden', 'true');
     });
+  }
+
+  function initCompendium() {
+    const root = $('[data-slink]');
+    const bar = $('.compendium');
+    if (!root || !bar) return;
+    const list = $('.slink__list', root);
+    const stage = $('.slink__stage', root);
+    const items = $$('.slink__item', list);
+    const panels = $$('.slink__panel', stage);
+    const countEl = $('.compendium__count', bar);
+    let filter = 'all';
+    let sort = 'newest';
+    const key = (el) => ({ date: el.dataset.date, team: +el.dataset.team });
+    const sorters = {
+      newest: (a, b) => b.date.localeCompare(a.date),
+      oldest: (a, b) => a.date.localeCompare(b.date),
+      team: (a, b) => b.team - a.team,
+    };
+    const match = (el) => filter === 'all' || el.dataset.tags.split(' ').includes(filter);
+
+    const apply = (animate) => {
+      const first = new Map(items.map((el) => [el, el.getBoundingClientRect()]));
+      const by = (a, b) => sorters[sort](key(a), key(b));
+      [...items].sort(by).forEach((el) => list.append(el));
+      [...panels].sort(by).forEach((el) => stage.append(el));
+      items.forEach((el) => el.classList.toggle('is-filtered', !match(el)));
+      panels.forEach((el) => el.classList.toggle('is-filtered', !match(el)));
+      if (animate && !reduceMotion && Element.prototype.animate) {
+        items.forEach((el) => {
+          if (el.classList.contains('is-filtered')) return;
+          const a = first.get(el);
+          const b = el.getBoundingClientRect();
+          if (!a.height) {
+            el.animate([{ opacity: 0, transform: 'translateX(-30px) scale(.92)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.34,1.56,.64,1)' });
+          } else if (Math.abs(a.top - b.top) > 1) {
+            el.animate([{ transform: `translateY(${a.top - b.top}px)` }, { transform: 'none' }], { duration: 480, easing: 'cubic-bezier(.2,.9,.2,1)' });
+          }
+        });
+      }
+      const n = items.filter((el) => !el.classList.contains('is-filtered')).length;
+      countEl.innerHTML = `<b>${n}</b> / ${items.length} projects`;
+      if (slinkApi) slinkApi.refresh();
+    };
+
+    bar.addEventListener('click', (e) => {
+      const b = e.target.closest('.ctag');
+      if (!b) return;
+      if (b.dataset.filter) {
+        filter = b.dataset.filter;
+        $$('[data-filter]', bar).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      }
+      if (b.dataset.sort) {
+        sort = b.dataset.sort;
+        $$('[data-sort]', bar).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      }
+      apply(true);
+    });
+    apply(false);
   }
 
   /* ---------- Contact chat ---------------------------------------------- */
@@ -929,38 +905,185 @@
     onVisible(phone, step);
   }
 
-  /* ---------- Rank up sparkle burst ------------------------------------- */
-  function initRankUp() {
-    if (reduceMotion) return;
-    $$('.rankup').forEach((box) => onVisible(box, () => {
-      setTimeout(() => {
-        const flag = $('.rankup__flag', box);
-        if (!flag) return;
-        for (let i = 0; i < 14; i++) {
-          const s = document.createElement('span');
-          s.className = 'spark';
-          s.style.setProperty('--a', `${(i * 360) / 14 + Math.random() * 12}deg`);
-          s.style.setProperty('--r', `${50 + Math.random() * 80}px`);
-          flag.append(s);
-          setTimeout(() => s.remove(), 1000);
-        }
-        sfx.rank();
-      }, 600);
-    }));
-  }
-
-  /* ---------- Project prev / next --------------------------------------- */
+  /* ---------- Project pages: newer / older links ------------------------ */
   function initProjectNav() {
     const nav = $('#project-nav');
     const slug = document.body.dataset.project;
     if (!nav || !slug) return;
     const i = PROJECTS.findIndex((p) => p.slug === slug);
     if (i < 0) return;
-    const prev = PROJECTS[(i - 1 + PROJECTS.length) % PROJECTS.length];
-    const next = PROJECTS[(i + 1) % PROJECTS.length];
+    const newer = PROJECTS[i - 1];
+    const older = PROJECTS[i + 1];
     const link = (p, dir) => `<a class="pnav__link" href="${p.slug}.html">
-        <span class="pnav__dir">${dir}</span><span class="pnav__title">${p.title}</span><span class="pnav__arc">${p.num} · ${p.arcana}</span></a>`;
-    nav.innerHTML = link(prev, '◀ Previous link') + link(next, 'Next link ▶');
+        <span class="pnav__dir">${dir}</span><span class="pnav__title">${p.title}</span><span class="pnav__arc">${p.when}</span></a>`;
+    const all = (dir) => `<a class="pnav__link" href="../projects.html">
+        <span class="pnav__dir">${dir}</span><span class="pnav__title">All projects</span><span class="pnav__arc">Newest to oldest</span></a>`;
+    nav.innerHTML = (newer ? link(newer, '◀ Newer project') : all('◀ Back to'))
+      + (older ? link(older, 'Older project ▶') : all('Back to ▶'));
+  }
+
+  /* ---------- Project pages: chapter list -------------------------------- */
+  function initChapters() {
+    if (PAGE !== 'project') return;
+    const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const targets = [];
+    const add = (el, num, text) => {
+      if (!el) return;
+      if (!el.id) el.id = slug(text);
+      targets.push({ el, num, text });
+    };
+    add($('#quest'), '◆', 'At a glance');
+    add($('#summary-title') && $('#summary-title').closest('section'), '≡', 'Summary');
+    $$('.h3').forEach((h) => {
+      const num = $('.h3__num', h);
+      const n = num ? num.textContent.trim() : '•';
+      add(h, n, h.textContent.trim().replace(n, '').trim());
+    });
+    add($('#takeaways-title') && $('#takeaways-title').closest('section'), '★', 'Takeaways');
+    if (targets.length < 3) return;
+
+    const nav = document.createElement('nav');
+    nav.className = 'chapters is-away';
+    nav.setAttribute('aria-label', 'Sections on this page');
+    nav.innerHTML = `<ol>${targets.map((t) => `<li><a href="#${t.el.id}"><span class="chapters__num">${t.num}</span><span class="chapters__label">${t.text}</span></a></li>`).join('')}</ol>`;
+    document.body.append(nav);
+    const links = $$('a', nav);
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const line = window.innerHeight * 0.4;
+      let active = 0;
+      targets.forEach((t, i) => { if (t.el.getBoundingClientRect().top < line) active = i; });
+      links.forEach((a, i) => a.classList.toggle('is-active', i === active));
+      nav.classList.toggle('is-away', window.scrollY < window.innerHeight * 0.5);
+    };
+    window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    update();
+  }
+
+  /* ---------- Home: main-menu hero --------------------------------------- */
+  function initHeroMenu() {
+    const nav = $('.hmenu');
+    if (!nav) return;
+    const items = $$('.hmenu__item', nav);
+    let idx = 0;
+    const set = (i, focus) => {
+      idx = (i + items.length) % items.length;
+      items.forEach((el, j) => el.classList.toggle('is-active', j === idx));
+      if (focus) items[idx].focus({ preventScroll: true });
+    };
+    items.forEach((el, i) => {
+      el.addEventListener('mouseenter', () => set(i));
+      el.addEventListener('focus', () => set(i));
+    });
+    nav.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); sfx.hover(); set(idx + 1, true); }
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); sfx.hover(); set(idx - 1, true); }
+    });
+    set(0);
+
+    const hero = $('.hero');
+    const cut = $('.hero__cutout');
+    if (cut) {
+      const fail = () => hero.classList.add('no-cutout');
+      if (cut.complete && !cut.naturalWidth) fail();
+      cut.addEventListener('error', fail);
+    }
+  }
+
+  /* ---------- CV: calendar that follows the timeline -------------------- */
+  const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+  function initDayCal() {
+    const cal = $('.daycal');
+    if (!cal || !('IntersectionObserver' in window)) return;
+    const layout = cal.closest('.cv-layout');
+    const mEl = $('.daycal__md', cal);
+    const yEl = $('.daycal__year', cal);
+    const evEl = $('.daycal__event', cal);
+    const fx = $('.daycal__fx', cal);
+    const entries = $$('.tl[data-date]', layout);
+
+    // Connector from the calendar to the entry it is showing.
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('class', 'daycal__link');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.innerHTML = '<defs><marker id="dc-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs><path class="daycal__path" marker-end="url(#dc-arrow)"/>';
+    layout.append(svg);
+    const path = $('.daycal__path', svg);
+
+    let current = null;
+    const draw = () => {
+      if (!current || getComputedStyle(cal).display === 'none') { path.setAttribute('d', ''); return; }
+      const L = layout.getBoundingClientRect();
+      const a = cal.getBoundingClientRect();
+      const b = $('.tl__date', current).getBoundingClientRect();
+      const x1 = a.right - L.left - 4;
+      const y1 = a.top + a.height * 0.7 - L.top;
+      const x2 = b.left - L.left - 10;
+      const y2 = b.top + b.height / 2 - L.top;
+      const xm = x1 + Math.max(14, (x2 - x1) * 0.4);
+      path.setAttribute('d', `M${x1.toFixed(1)} ${y1.toFixed(1)}H${xm.toFixed(1)}V${y2.toFixed(1)}H${x2.toFixed(1)}`);
+    };
+    let ticking = false;
+    const schedule = () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { ticking = false; draw(); }); } };
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+
+    const show = (d, flip) => {
+      mEl.textContent = MONTHS[d.getMonth()];
+      yEl.textContent = d.getFullYear();
+      if (flip) restart(mEl, 'is-flip');
+    };
+    const today = new Date();
+    let cur = new Date(today.getFullYear(), today.getMonth(), 1);
+    show(cur, false);
+    evEl.textContent = 'Today';
+    let timer = 0;
+
+    const go = (tl) => {
+      clearInterval(timer);
+      cal.classList.remove('is-running');
+      current = tl;
+      entries.forEach((el) => el.classList.toggle('is-current', el === tl));
+      evEl.textContent = tl.dataset.title;
+      restart(evEl, 'is-swap');
+      schedule();
+      const parts = tl.dataset.date.split('-').map(Number);
+      if (parts.length < 2) {
+        // Year-only entries: no exact start month to show.
+        mEl.textContent = String(parts[0]);
+        yEl.textContent = tl.dataset.span || '';
+        restart(mEl, 'is-flip');
+        return;
+      }
+      const target = new Date(parts[0], parts[1] - 1, 1);
+      const months = (target.getFullYear() - cur.getFullYear()) * 12 + (target.getMonth() - cur.getMonth());
+      if (!months || reduceMotion) { cur = target; show(cur, true); return; }
+      fx.textContent = months > 0 ? '▶▶ Forward' : '◀◀ Rewinding';
+      cal.classList.add('is-running');
+      const start = cur;
+      const steps = Math.min(Math.abs(months), 14);
+      let k = 0;
+      timer = setInterval(() => {
+        k += 1;
+        show(new Date(start.getFullYear(), start.getMonth() + Math.round((months * k) / steps), 1), true);
+        sfx.blip();
+        if (k >= steps) {
+          clearInterval(timer);
+          cur = target;
+          show(cur, true);
+          cal.classList.remove('is-running');
+        }
+      }, 70);
+    };
+
+    const watch = new IntersectionObserver((list) => {
+      list.forEach((en) => { if (en.isIntersecting) go(en.target); });
+    }, { rootMargin: '-38% 0px -52% 0px' });
+    entries.forEach((el) => watch.observe(el));
   }
 
   /* ---------- Lightbox (zooms out of the thumbnail) ---------------------- */
@@ -1028,7 +1151,6 @@
       lb.hidden = false;
       doc.classList.add('menu-open');
       sfx.open();
-      progress('photo');
       $('.lb__close', lb).focus({ preventScroll: true });
       const ready = img.decode ? img.decode().catch(() => {}) : Promise.resolve();
       ready.then(() => flip(rect, false));
@@ -1102,7 +1224,7 @@
     lightboxApi = { close, isOpen: () => !lb.hidden };
   }
 
-  /* ---------- Card tilt + holo glare ------------------------------------- */
+  /* ---------- Card tilt + glare ----------------------------------------- */
   function initTilt() {
     if (reduceMotion || !finePointer) return;
     $$('[data-tilt]').forEach((el) => {
@@ -1111,8 +1233,8 @@
         const r = el.getBoundingClientRect();
         const x = (e.clientX - r.left) / r.width;
         const y = (e.clientY - r.top) / r.height;
-        el.style.setProperty('--ry', `${((x - 0.5) * 18).toFixed(2)}deg`);
-        el.style.setProperty('--rx', `${(-(y - 0.5) * 18).toFixed(2)}deg`);
+        el.style.setProperty('--ry', `${((x - 0.5) * 14).toFixed(2)}deg`);
+        el.style.setProperty('--rx', `${(-(y - 0.5) * 14).toFixed(2)}deg`);
         el.style.setProperty('--px', `${(x * 100).toFixed(1)}%`);
         el.style.setProperty('--py', `${(y * 100).toFixed(1)}%`);
       });
@@ -1123,7 +1245,7 @@
     });
   }
 
-  /* ---------- Click splash, magnetic buttons, parallax ------------------- */
+  /* ---------- Click splash ----------------------------------------------- */
   function initSplash() {
     if (reduceMotion) return;
     document.addEventListener('pointerdown', (e) => {
@@ -1138,426 +1260,13 @@
       for (let i = 0; i < n; i++) {
         html += `<i class="drop" style="--a:${((360 / n) * i + Math.random() * 25).toFixed(0)}deg;--r:${(28 + Math.random() * 44).toFixed(0)}px"></i>`;
       }
-      for (let i = 0; i < (big ? 3 : 2); i++) {
-        html += `<i class="bub" style="--dx:${(Math.random() * 50 - 25).toFixed(0)}px;--d:${(0.9 + Math.random() * 0.7).toFixed(2)}s;--s:${(5 + Math.random() * 8).toFixed(1)}px"></i>`;
-      }
       el.innerHTML = html;
       document.body.append(el);
-      setTimeout(() => el.remove(), 1700);
+      setTimeout(() => el.remove(), 1200);
     });
   }
 
-  function initMagnet() {
-    if (reduceMotion || !finePointer) return;
-    let cur = null;
-    const reset = (el) => { if (el) { el.style.removeProperty('--mx'); el.style.removeProperty('--my'); } };
-    document.addEventListener('pointermove', (e) => {
-      const el = e.target.closest(MAGNETIC);
-      if (cur && cur !== el) reset(cur);
-      cur = el;
-      if (!el) return;
-      const r = el.getBoundingClientRect();
-      el.style.setProperty('--mx', `${(((e.clientX - r.left) / r.width - 0.5) * 12).toFixed(1)}px`);
-      el.style.setProperty('--my', `${(((e.clientY - r.top) / r.height - 0.5) * 10).toFixed(1)}px`);
-    }, { passive: true });
-    doc.addEventListener('mouseleave', () => { reset(cur); cur = null; });
-  }
-
-  function initPointerParallax() {
-    if (reduceMotion || !finePointer) return;
-    const bg = $('.bg');
-    const hero = $('.hero');
-    let px = 0, py = 0, raf = 0;
-    window.addEventListener('pointermove', (e) => {
-      px = (e.clientX / window.innerWidth) * 2 - 1;
-      py = (e.clientY / window.innerHeight) * 2 - 1;
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        bg.style.setProperty('--mxp', px.toFixed(3));
-        if (hero) {
-          hero.style.setProperty('--hx', px.toFixed(3));
-          hero.style.setProperty('--hy', py.toFixed(3));
-        }
-      });
-    }, { passive: true });
-  }
-
-  /* ======================================================================
-     v3: water shader, home menu, tips, finisher, trophies, controller,
-     Velvet Room, compendium, chapters, CV day-change, analytics
-     ====================================================================== */
-
-  const GOATCOUNTER = 'lmeerburg';
-
-  let goTo = (href) => { location.href = href; };
-  let finisherApi = null;
-  let trophiesApi = null;
-  let slinkApi = null;
-  let konamiFeed = null;
-
-  /* ---------- Trophies (achievements) ------------------------------------ */
-  const TROPHIES = [
-    { id: 'start', name: 'New Game', desc: 'Visit the site for the first time.' },
-    { id: 'menu', name: 'Pause Menu', desc: 'Open the menu.' },
-    { id: 'dark', name: 'The Dark Hour', desc: 'Enter the Dark Hour.' },
-    { id: 'sfx', name: 'Sound Check', desc: 'Turn on sound effects.' },
-    { id: 'status', name: 'Status Check', desc: 'Visit the About page.' },
-    { id: 'calendar', name: 'Time Flies', desc: 'Read the CV.' },
-    { id: 'links', name: 'Social Butterfly', desc: 'Open all five project pages.' },
-    { id: 'chat', name: 'Party Chat', desc: 'Read five testimonials.' },
-    { id: 'photo', name: 'Shutterbug', desc: 'Open five images in the viewer.' },
-    { id: 'teamup', name: 'All-Out', desc: 'Ask to team up.' },
-    { id: 'pad', name: 'Player Two', desc: 'Connect a controller.' },
-    { id: 'moon', name: 'Full Moon', desc: 'Visit on the night of a full moon.' },
-    { id: 'velvet', name: 'Velvet Room Guest', desc: 'Find the hidden room.' },
-    { id: 'all', name: 'Completionist', desc: 'Unlock every other trophy.' },
-  ];
-  let achApi = null;
-  function unlock(id) { if (achApi) achApi.unlock(id); }
-  function progress(kind, value) { if (achApi) achApi.progress(kind, value); }
-
-  function initAchievements() {
-    const read = (k, d) => { try { return JSON.parse(store.get(k) || 'null') || d; } catch { return d; } };
-    const got = read('p3-trophies', {});
-    const prog = Object.assign({ projects: [], photos: 0, quotes: [] }, read('p3-trophy-progress', {}));
-    const save = () => {
-      store.set('p3-trophies', JSON.stringify(got));
-      store.set('p3-trophy-progress', JSON.stringify(prog));
-    };
-    const region = $('.toasts');
-    const queue = [];
-    let busy = false;
-
-    const count = () => TROPHIES.filter((t) => got[t.id]).length;
-    const render = () => {
-      $$('[data-trophy-count]').forEach((el) => { el.textContent = `${count()}/${TROPHIES.length}`; });
-      $$('[data-trophies]').forEach((list) => {
-        list.innerHTML = TROPHIES.map((t) => {
-          const on = !!got[t.id];
-          return `<li class="trophy${on ? ' is-unlocked' : ''}"><span class="trophy__icon" aria-hidden="true">${ICON.trophy}</span>
-            <span class="trophy__name">${on ? t.name : '? ? ?'}</span><span class="trophy__desc">${t.desc}</span>
-            <span class="sr-only">${on ? 'Unlocked' : 'Locked'}</span></li>`;
-        }).join('');
-      });
-      $$('[data-trophy-bar]').forEach((el) => el.style.setProperty('--v', `${(count() / TROPHIES.length) * 100}%`));
-    };
-
-    const showNext = () => {
-      if (busy || !queue.length) return;
-      const wait = revealGate - performance.now();
-      if (wait > 0) { setTimeout(showNext, wait + 200); return; }
-      busy = true;
-      const t = queue.shift();
-      const el = document.createElement('div');
-      el.className = 'toast';
-      el.innerHTML = `<span class="toast__icon" aria-hidden="true">${ICON.trophy}</span><span class="toast__kicker">Trophy unlocked</span><span class="toast__name">${t.name}</span><span class="toast__desc">${t.desc}</span>`;
-      region.append(el);
-      sfx.rank();
-      setTimeout(() => {
-        el.classList.add('is-leaving');
-        setTimeout(() => { el.remove(); busy = false; showNext(); }, reduceMotion ? 0 : 380);
-      }, 3400);
-    };
-
-    const doUnlock = (id) => {
-      const t = TROPHIES.find((x) => x.id === id);
-      if (!t || got[id]) return;
-      got[id] = Date.now();
-      save();
-      queue.push(t);
-      if (id !== 'all' && TROPHIES.every((x) => x.id === 'all' || got[x.id])) doUnlock('all');
-      render();
-      setTimeout(showNext, 300);
-    };
-
-    achApi = {
-      unlock: doUnlock,
-      progress(kind, value) {
-        if (kind === 'project') {
-          if (!prog.projects.includes(value)) { prog.projects.push(value); save(); }
-          if (PROJECTS.every((p) => prog.projects.includes(p.slug))) doUnlock('links');
-        } else if (kind === 'photo') {
-          prog.photos += 1; save();
-          if (prog.photos >= 5) doUnlock('photo');
-        } else if (kind === 'quote') {
-          if (!prog.quotes.includes(value)) { prog.quotes.push(value); save(); }
-          if (prog.quotes.length >= 5) doUnlock('chat');
-        }
-      },
-      render,
-    };
-
-    render();
-    doUnlock('start');
-    if (PAGE === 'about') doUnlock('status');
-    if (PAGE === 'cv') doUnlock('calendar');
-    if (PAGE === 'velvet') doUnlock('velvet');
-    if (document.body.dataset.project) achApi.progress('project', document.body.dataset.project);
-    const phase = moonPhase(new Date());
-    if (phase > 0.47 && phase < 0.53) doUnlock('moon');
-  }
-
-  function initTrophies() {
-    const dlg = $('.trophies');
-    if (!dlg) return;
-    let opener = null;
-    const open = () => {
-      opener = document.activeElement;
-      dlg.hidden = false;
-      doc.classList.add('menu-open');
-      if (achApi) achApi.render();
-      $('.trophies__close', dlg).focus({ preventScroll: true });
-      sfx.open();
-    };
-    const close = () => {
-      if (dlg.hidden) return;
-      dlg.hidden = true;
-      if (!(menuApi && menuApi.isOpen())) doc.classList.remove('menu-open');
-      sfx.back();
-      if (opener && opener.focus) opener.focus({ preventScroll: true });
-    };
-    document.addEventListener('click', (e) => {
-      if (e.target.closest('[data-trophies-open]')) open();
-      else if (e.target.closest('[data-trophies-close]') || e.target === dlg) close();
-    });
-    dlg.addEventListener('keydown', (e) => {
-      if (e.key !== 'Tab') return;
-      e.preventDefault();
-      $('.trophies__close', dlg).focus();
-    });
-    trophiesApi = { open, close, isOpen: () => !dlg.hidden };
-  }
-
-  /* ---------- "Let's team up!" finish screen ----------------------------- */
-  function initFinisher() {
-    const el = $('.finisher');
-    if (!el || reduceMotion) return;
-    let blobs = '';
-    for (let i = 0; i < 28; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const d = 26 + Math.random() * 30;
-      const r = 0.8 + Math.random() * (i < 8 ? 7 : 2.5);
-      blobs += `<circle cx="${(50 + Math.cos(a) * d).toFixed(1)}" cy="${(50 + Math.sin(a) * d * 0.62).toFixed(1)}" r="${r.toFixed(1)}"/>`;
-    }
-    $('.finisher__ink', el).innerHTML = blobs;
-    finisherApi = {
-      play(done) {
-        sfx.hit();
-        restart(el, 'is-on');
-        setTimeout(shake, 280);
-        setTimeout(done, 1250);
-      },
-    };
-    window.addEventListener('pageshow', (e) => { if (e.persisted) el.classList.remove('is-on'); });
-  }
-
-  /* ---------- Home: main-menu hero --------------------------------------- */
-  function initHeroMenu() {
-    const nav = $('.hmenu');
-    if (!nav) return;
-    const items = $$('.hmenu__item', nav);
-    let idx = 0;
-    const set = (i, focus) => {
-      idx = (i + items.length) % items.length;
-      items.forEach((el, j) => el.classList.toggle('is-active', j === idx));
-      if (focus) items[idx].focus({ preventScroll: true });
-    };
-    items.forEach((el, i) => {
-      el.addEventListener('mouseenter', () => set(i));
-      el.addEventListener('focus', () => set(i));
-    });
-    nav.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); sfx.hover(); set(idx + 1, true); }
-      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); sfx.hover(); set(idx - 1, true); }
-    });
-    set(0);
-
-    const hero = $('.hero');
-    const cut = $('.hero__cutout');
-    if (cut) {
-      const fail = () => hero.classList.add('no-cutout');
-      if (cut.complete && !cut.naturalWidth) fail();
-      cut.addEventListener('error', fail);
-    }
-  }
-
-  /* ---------- Project pages: chapter list -------------------------------- */
-  function initChapters() {
-    if (PAGE !== 'project') return;
-    const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    const targets = [];
-    const add = (el, num, text) => {
-      if (!el) return;
-      if (!el.id) el.id = slug(text);
-      targets.push({ el, num, text });
-    };
-    add($('#quest'), '◆', 'Quest log');
-    add($('#summary-title') && $('#summary-title').closest('section'), '≡', 'Summary');
-    $$('.h3').forEach((h) => {
-      const num = $('.h3__num', h);
-      const n = num ? num.textContent.trim() : '•';
-      add(h, n, h.textContent.trim().replace(n, '').trim());
-    });
-    add($('#takeaways-title') && $('#takeaways-title').closest('section'), '★', 'Takeaways');
-    if (targets.length < 3) return;
-
-    const nav = document.createElement('nav');
-    nav.className = 'chapters is-away';
-    nav.setAttribute('aria-label', 'Sections on this page');
-    nav.innerHTML = `<ol>${targets.map((t) => `<li><a href="#${t.el.id}"><span class="chapters__num">${t.num}</span><span class="chapters__label">${t.text}</span></a></li>`).join('')}</ol>`;
-    document.body.append(nav);
-    const links = $$('a', nav);
-
-    let ticking = false;
-    const update = () => {
-      ticking = false;
-      const line = window.innerHeight * 0.4;
-      let active = 0;
-      targets.forEach((t, i) => { if (t.el.getBoundingClientRect().top < line) active = i; });
-      links.forEach((a, i) => a.classList.toggle('is-active', i === active));
-      nav.classList.toggle('is-away', window.scrollY < window.innerHeight * 0.5);
-    };
-    window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
-    update();
-  }
-
-  /* ---------- Projects index: compendium filters & sort ------------------ */
-  function initCompendium() {
-    const root = $('[data-slink]');
-    const bar = $('.compendium');
-    if (!root || !bar) return;
-    const list = $('.slink__list', root);
-    const stage = $('.slink__stage', root);
-    const items = $$('.slink__item', list);
-    const panels = $$('.slink__panel', stage);
-    const countEl = $('.compendium__count', bar);
-    let filter = 'all';
-    let sort = 'featured';
-    const key = (el) => ({ order: +el.dataset.order, num: +el.dataset.num, date: el.dataset.date, team: +el.dataset.team });
-    const sorters = {
-      featured: (a, b) => a.order - b.order,
-      arcana: (a, b) => a.num - b.num,
-      newest: (a, b) => b.date.localeCompare(a.date),
-      team: (a, b) => b.team - a.team,
-    };
-    const match = (el) => filter === 'all' || el.dataset.tags.split(' ').includes(filter);
-
-    const apply = (animate) => {
-      const first = new Map(items.map((el) => [el, el.getBoundingClientRect()]));
-      const by = (a, b) => sorters[sort](key(a), key(b));
-      [...items].sort(by).forEach((el) => list.append(el));
-      [...panels].sort(by).forEach((el) => stage.append(el));
-      items.forEach((el) => el.classList.toggle('is-filtered', !match(el)));
-      panels.forEach((el) => el.classList.toggle('is-filtered', !match(el)));
-      if (animate && !reduceMotion && Element.prototype.animate) {
-        items.forEach((el) => {
-          if (el.classList.contains('is-filtered')) return;
-          const a = first.get(el);
-          const b = el.getBoundingClientRect();
-          if (!a.height) {
-            el.animate([{ opacity: 0, transform: 'translateX(-30px) scale(.92)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.34,1.56,.64,1)' });
-          } else if (Math.abs(a.top - b.top) > 1) {
-            el.animate([{ transform: `translateY(${a.top - b.top}px)` }, { transform: 'none' }], { duration: 480, easing: 'cubic-bezier(.2,.9,.2,1)' });
-          }
-        });
-      }
-      const n = items.filter((el) => !el.classList.contains('is-filtered')).length;
-      countEl.innerHTML = `<b>${n}</b> / ${items.length} registered`;
-      if (slinkApi) slinkApi.refresh();
-    };
-
-    bar.addEventListener('click', (e) => {
-      const b = e.target.closest('.ctag');
-      if (!b) return;
-      if (b.dataset.filter) {
-        filter = b.dataset.filter;
-        $$('[data-filter]', bar).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-      }
-      if (b.dataset.sort) {
-        sort = b.dataset.sort;
-        $$('[data-sort]', bar).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
-      }
-      apply(true);
-    });
-    apply(false);
-  }
-
-  /* ---------- CV: calendar day-change ------------------------------------ */
-  function initDayCal() {
-    const cal = $('.daycal');
-    if (!cal) return;
-    const mdEl = $('.daycal__md', cal);
-    const dowEl = $('.daycal__dow', cal);
-    const yearEl = $('.daycal__year', cal);
-    const moonEl = $('.daycal__moon', cal);
-    const phaseEl = $('.daycal__phase', cal);
-    const evEl = $('.daycal__event', cal);
-    const fx = $('.daycal__fx', cal);
-
-    const render = (d, flip) => {
-      const day = d.getDay();
-      mdEl.textContent = `${d.getMonth() + 1}/${d.getDate()}`;
-      dowEl.textContent = DAYS[day];
-      dowEl.dataset.day = day;
-      yearEl.textContent = d.getFullYear();
-      const p = moonPhase(d);
-      moonEl.innerHTML = moonSVG(p);
-      phaseEl.textContent = PHASES[Math.round(p * 8) % 8];
-      cal.classList.remove('is-vague');
-      if (flip) restart(mdEl, 'is-flip');
-    };
-    const today = new Date();
-    let cur = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    render(cur, false);
-    evEl.textContent = 'Today';
-    let timer = 0;
-
-    const go = (tl) => {
-      clearInterval(timer);
-      cal.classList.remove('is-running');
-      evEl.textContent = tl.dataset.title;
-      restart(evEl, 'is-swap');
-      const parts = tl.dataset.date.split('-').map(Number);
-      if (parts.length < 2) {
-        // Year-only entries: no exact start date to show.
-        mdEl.textContent = String(parts[0]);
-        yearEl.textContent = tl.dataset.span || '';
-        cal.classList.add('is-vague');
-        restart(mdEl, 'is-flip');
-        return;
-      }
-      const target = new Date(parts[0], parts[1] - 1, 1);
-      const months = (target.getFullYear() - cur.getFullYear()) * 12 + (target.getMonth() - cur.getMonth());
-      if (!months || reduceMotion) { cur = target; render(cur, true); return; }
-      fx.textContent = months > 0 ? '▶▶ Time passes' : '◀◀ Rewinding';
-      cal.classList.add('is-running');
-      const start = cur;
-      const steps = Math.min(Math.abs(months), 18);
-      let k = 0;
-      timer = setInterval(() => {
-        k += 1;
-        const m = Math.round((months * k) / steps);
-        render(new Date(start.getFullYear(), start.getMonth() + m, 1), true);
-        sfx.blip();
-        if (k >= steps) {
-          clearInterval(timer);
-          cur = target;
-          render(cur, true);
-          cal.classList.remove('is-running');
-        }
-      }, 70);
-    };
-
-    const entries = $$('.tl[data-date]');
-    if (!('IntersectionObserver' in window)) return;
-    const watch = new IntersectionObserver((list) => {
-      list.forEach((en) => { if (en.isIntersecting) go(en.target); });
-    }, { rootMargin: '-38% 0px -52% 0px' });
-    entries.forEach((el) => watch.observe(el));
-  }
-
-  /* ---------- Background: live water caustics (WebGL) -------------------- */
+  /* ---------- Background: subtle water caustics (WebGL) ----------------- */
   function initCaustics() {
     if (reduceMotion) return;
     if (navigator.connection && navigator.connection.saveData) return;
@@ -1569,7 +1278,7 @@
 
     const vs = 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }';
     const fs = `precision mediump float;
-uniform vec2 uRes; uniform float uTime; uniform vec3 uColor; uniform vec2 uMouse;
+uniform vec2 uRes; uniform float uTime; uniform vec3 uColor;
 vec2 h2(vec2 p){ p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3))); return fract(sin(p) * 43758.5453); }
 float cell(vec2 x, float t){
   vec2 n = floor(x), f = fract(x);
@@ -1587,16 +1296,14 @@ float cell(vec2 x, float t){
 }
 void main(){
   vec2 uv = gl_FragCoord.xy / uRes.y;
-  float t = uTime * 0.35;
+  float t = uTime * 0.16;
   vec2 p = uv * vec2(3.0, 4.0);
   p += 0.22 * vec2(sin(p.y * 1.7 + t * 1.3), cos(p.x * 1.4 - t * 1.1));
-  vec2 dm = uv - uMouse;
-  p += normalize(dm + 1e-4) * 0.12 * exp(-dot(dm, dm) * 18.0);
-  float c1 = 1.0 - smoothstep(0.0, 0.11, cell(p, t));
-  float c2 = 1.0 - smoothstep(0.0, 0.08, cell(p * 1.7 + 4.0, t * 1.4));
-  float c = pow(c1 * 0.75 + c2 * 0.45, 1.6);
+  float c1 = 1.0 - smoothstep(0.0, 0.09, cell(p, t));
+  float c2 = 1.0 - smoothstep(0.0, 0.06, cell(p * 1.7 + 4.0, t * 1.4));
+  float c = pow(c1 * 0.75 + c2 * 0.4, 1.8);
   float depth = gl_FragCoord.y / uRes.y;
-  float a = c * (0.15 + 0.85 * smoothstep(0.0, 1.0, depth));
+  float a = c * (0.1 + 0.9 * smoothstep(0.2, 1.0, depth));
   gl_FragColor = vec4(uColor * a, a);
 }`;
     const compile = (type, src) => {
@@ -1621,7 +1328,6 @@ void main(){
     const uRes = gl.getUniformLocation(prog, 'uRes');
     const uTime = gl.getUniformLocation(prog, 'uTime');
     const uColor = gl.getUniformLocation(prog, 'uColor');
-    const uMouse = gl.getUniformLocation(prog, 'uMouse');
 
     const hexToRgb = (hex) => {
       const m = hex.trim().match(/^#?([0-9a-f]{6})$/i);
@@ -1639,11 +1345,6 @@ void main(){
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.uniform2f(uRes, canvas.width, canvas.height);
     };
-    let mx = -10, my = -10, tx = -10, ty = -10;
-    window.addEventListener('pointermove', (e) => {
-      tx = e.clientX / window.innerHeight;
-      ty = (window.innerHeight - e.clientY) / window.innerHeight;
-    }, { passive: true });
     window.addEventListener('resize', resize);
     resize();
     setColor();
@@ -1653,11 +1354,8 @@ void main(){
     let last = 0;
     const frame = (now) => {
       requestAnimationFrame(frame);
-      if (now - last < 30) return; // ~30 fps is plenty for a background
+      if (now - last < 40) return; // ~25 fps is plenty for a slow background
       last = now;
-      mx += (tx - mx) * 0.08;
-      my += (ty - my) * 0.08;
-      gl.uniform2f(uMouse, mx, my);
       gl.uniform1f(uTime, now / 1000);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
@@ -1674,15 +1372,14 @@ void main(){
 
     const glyphs = (ps) => {
       const g = ps
-        ? { A: ['✕', 'ps-x'], B: ['○', 'ps-o'], X: ['□', 'ps-s'], Y: ['△', 'ps-t'], LR: 'L1 R1', M: 'Options' }
-        : { A: ['A', 'xb-a'], B: ['B', 'xb-b'], X: ['X', 'xb-x'], Y: ['Y', 'xb-y'], LR: 'LB RB', M: '☰' };
+        ? { A: ['✕', 'ps-x'], B: ['○', 'ps-o'], LR: 'L1 R1', M: 'Options' }
+        : { A: ['A', 'xb-a'], B: ['B', 'xb-b'], LR: 'LB RB', M: '☰' };
       const btn = ([t, c]) => `<i class="pad-btn ${c}">${t}</i>`;
       bar.innerHTML = `<span>${btn(g.A)}Select</span><span>${btn(g.B)}Back</span><span><i class="pad-btn pad-btn--wide">${g.M}</i>Menu</span>`
-        + `<span>${btn(g.Y)}Dark Hour</span><span>${btn(g.X)}SFX</span><span><i class="pad-btn pad-btn--wide">${g.LR}</i>Prev / Next</span><span><i class="pad-btn pad-btn--wide">R</i>Scroll</span>`;
+        + `<span><i class="pad-btn pad-btn--wide">${g.LR}</i>Newer / Older</span><span><i class="pad-btn pad-btn--wide">R</i>Scroll</span>`;
     };
 
     const scope = () => {
-      if (trophiesApi && trophiesApi.isOpen()) return $('.trophies');
       if (lightboxApi && lightboxApi.isOpen()) return $('.lb');
       if (menuApi && menuApi.isOpen()) return $('#menu');
       return document.body;
@@ -1690,7 +1387,7 @@ void main(){
     const candidates = () => {
       const root = scope();
       return $$('a[href], button:not([disabled]), [tabindex="0"]', root).filter((el) => {
-        if (root === document.body && el.closest('#menu, .lb, .trophies, .pad-bar')) return false;
+        if (root === document.body && el.closest('#menu, .lb, .pad-bar')) return false;
         const r = el.getBoundingClientRect();
         return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden';
       });
@@ -1707,7 +1404,7 @@ void main(){
       const items = candidates();
       const cur = items.includes(document.activeElement) ? document.activeElement : null;
       // Inside a vertical list (menus, link lists, choices) follow DOM order.
-      const group = cur && dy && cur.closest('.menu__list, .hmenu, .slink__list, .choices, .chapters ol, .talk__ctrl');
+      const group = cur && dy && cur.closest('.menu__list, .menu__extras, .hmenu, .slink__list, .choices, .chapters ol, .talk__ctrl');
       if (group) {
         const list = items.filter((el) => group.contains(el));
         const next = list[list.indexOf(cur) + dy];
@@ -1756,16 +1453,11 @@ void main(){
         else move(0, 1);
       } else if (i === 1) {
         if (konamiFeed) konamiFeed('b');
-        if (trophiesApi && trophiesApi.isOpen()) trophiesApi.close();
-        else if (lightboxApi && lightboxApi.isOpen()) lightboxApi.close();
+        if (lightboxApi && lightboxApi.isOpen()) lightboxApi.close();
         else if (menuApi && menuApi.isOpen()) menuApi.close();
         else if (document.referrer.startsWith(location.origin) && history.length > 1) history.back();
       } else if (i === 9) {
         if (menuApi) (menuApi.isOpen() ? menuApi.close() : menuApi.open());
-      } else if (i === 3) {
-        $('#dh-btn').click();
-      } else if (i === 2) {
-        $('#sfx-btn').click();
       } else if (i === 4 || i === 5) {
         const dir = i === 4 ? 0 : 1;
         if (lightboxApi && lightboxApi.isOpen()) $(dir ? '.lb__next' : '.lb__prev').click();
@@ -1793,7 +1485,7 @@ void main(){
         if (!dirs[d]) { delete repeat[d]; return; }
         if (!repeat[d]) { repeat[d] = t + 380; onDir(d); } else if (t >= repeat[d]) { repeat[d] = t + 130; onDir(d); }
       });
-      [0, 1, 2, 3, 4, 5, 9].forEach((i) => {
+      [0, 1, 4, 5, 9].forEach((i) => {
         const on = pressed(gp, i);
         if (on && !prev[i]) onButton(i, gp);
         prev[i] = on;
@@ -1808,7 +1500,6 @@ void main(){
       glyphs(/054c|playstation|dualsense|dualshock/i.test(id) || (/wireless controller/i.test(id) && !/xbox|045e/i.test(id)));
       bar.hidden = false;
       doc.classList.add('gamepad-mode');
-      unlock('pad');
       if (!raf) raf = requestAnimationFrame(loop);
     });
     window.addEventListener('gamepaddisconnected', () => {
@@ -1826,8 +1517,7 @@ void main(){
       else pos = key === code[0] ? 1 : 0;
       if (pos === code.length) {
         pos = 0;
-        unlock('velvet');
-        sfx.rank();
+        sfx.chime();
         if (PAGE !== 'velvet') goTo(url('velvet.html'), 'Velvet Room');
       }
     };
@@ -1869,13 +1559,11 @@ void main(){
     }
   };
   buildChrome();
-  renderCals();
-  setInterval(renderCals, 60000);
   [
-    initAchievements, initSfx, initScroll, initDarkHour, initMenu, initTrophies, initLightbox,
-    initKeys, initWipe, initFinisher, initChapters, initHeroMenu, initSplit, initCards,
-    initReveal, initCounters, initTypewriters, initTalk, initSocialLinks, initCompendium,
-    initChat, initRankUp, initProjectNav, initDayCal, initTilt, initSplash, initMagnet,
-    initPointerParallax, initCaustics, initGamepad, initKonami, initVelvet, initAnalytics,
+    initSfx, initScroll, initDarkHour, initMenu, initLightbox, initKeys, initWipe,
+    initFinisher, initChapters, initHeroMenu, initCards, initReveal, initCounters,
+    initTypewriters, initTalk, initSocialLinks, initCompendium, initChat,
+    initProjectNav, initDayCal, initTilt, initSplash, initCaustics, initGamepad,
+    initKonami, initVelvet, initAnalytics,
   ].forEach(run);
 })();
