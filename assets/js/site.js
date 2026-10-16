@@ -1,7 +1,7 @@
 /* Lasse Meerburg — portfolio concept. Vanilla JS, no build step.
    Injects the shared chrome (header, menu, background, footer) and wires up
    the interactions, plus a "juice" layer: split-text reveals, card deals,
-   counters, a trailing cursor, click splashes, magnetic buttons, parallax,
+   counters, click splashes, magnetic buttons, parallax,
    a FLIP lightbox, the Dark Hour circle reveal and optional synth SFX. */
 (() => {
   'use strict';
@@ -1070,37 +1070,7 @@
     });
   }
 
-  /* ---------- Cursor ring, click splash, magnetic buttons, parallax ------ */
-  function initCursor() {
-    if (reduceMotion || !finePointer) return;
-    const ring = document.createElement('div');
-    ring.className = 'cursor';
-    ring.setAttribute('aria-hidden', 'true');
-    document.body.append(ring);
-
-    let x = -100, y = -100, rx = -100, ry = -100, s = 1, target = 1, raf = 0, shown = false;
-    const loop = () => {
-      rx += (x - rx) * 0.22;
-      ry += (y - ry) * 0.22;
-      s += (target - s) * 0.25;
-      ring.style.transform = `translate3d(${rx.toFixed(1)}px, ${ry.toFixed(1)}px, 0) rotate(45deg) scale(${s.toFixed(3)})`;
-      raf = (Math.abs(x - rx) > 0.1 || Math.abs(y - ry) > 0.1 || Math.abs(target - s) > 0.005) ? requestAnimationFrame(loop) : 0;
-    };
-    const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
-
-    document.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse') return;
-      x = e.clientX;
-      y = e.clientY;
-      if (!shown) { shown = true; rx = x; ry = y; ring.classList.add('is-visible'); }
-      ring.classList.toggle('is-hover', !!e.target.closest(INTERACTIVE));
-      kick();
-    }, { passive: true });
-    document.addEventListener('pointerdown', () => { target = 0.6; ring.classList.add('is-down'); kick(); });
-    document.addEventListener('pointerup', () => { target = 1; ring.classList.remove('is-down'); kick(); });
-    doc.addEventListener('mouseleave', () => { shown = false; ring.classList.remove('is-visible'); });
-  }
-
+  /* ---------- Click splash, magnetic buttons, parallax ------------------- */
   function initSplash() {
     if (reduceMotion) return;
     document.addEventListener('pointerdown', (e) => {
@@ -1175,6 +1145,6 @@
     initSfx, initScroll, initDarkHour, initMenu, initLightbox, initKeys, initWipe,
     initSplit, initCards, initReveal, initCounters, initTypewriters, initTalk,
     initSocialLinks, initChat, initRankUp, initProjectNav, initTilt,
-    initCursor, initSplash, initMagnet, initPointerParallax,
+    initSplash, initMagnet, initPointerParallax,
   ].forEach(run);
 })();

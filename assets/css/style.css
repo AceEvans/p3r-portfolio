@@ -938,19 +938,7 @@ a.arcana:hover .arcana__art img { transform: scale(1.07); }
 }
 .proj__title a:hover, .pnav__link:hover .pnav__title, .slink__item a.is-active .slink__title { animation: glitch .45s steps(3, end) 1; }
 
-/* ---------- Cursor ring & click splash ----------------------------------- */
-.cursor {
-  position: fixed; left: 0; top: 0; z-index: 400; pointer-events: none;
-  width: 30px; height: 30px; margin: -15px 0 0 -15px;
-  border: 2px solid var(--cyan); border-radius: 3px;
-  box-shadow: 0 0 14px color-mix(in srgb, var(--cyan) 45%, transparent);
-  opacity: 0;
-  transition: width .3s var(--ease-back), height .3s var(--ease-back), margin .3s var(--ease-back), background-color .2s, border-color .2s, opacity .3s;
-}
-.cursor.is-visible { opacity: .85; }
-.cursor.is-hover { width: 54px; height: 54px; margin: -27px 0 0 -27px; border-color: var(--white); background-color: color-mix(in srgb, var(--cyan) 14%, transparent); }
-.cursor.is-down { background-color: color-mix(in srgb, var(--white) 35%, transparent); }
-
+/* ---------- Click splash -------------------------------------------- */
 .splash { position: fixed; left: 0; top: 0; z-index: 390; width: 0; height: 0; pointer-events: none; }
 .splash i { position: absolute; left: 0; top: 0; }
 .splash .ring { width: 84px; height: 84px; margin: -42px 0 0 -42px; border: 2px solid var(--cyan); border-radius: 50%; animation: splashRing .6s var(--ease) forwards; }
@@ -1313,6 +1301,6 @@ a.arcana:active { --press: .95; }
 /* ---------- Reduced motion ---------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
-  .bg__bubbles, .bg__waves, .cursor, .splash { display: none !important; }
+  .bg__bubbles, .bg__waves, .splash { display: none !important; }
   .js [data-reveal] { opacity: 1; translate: none; }
 }

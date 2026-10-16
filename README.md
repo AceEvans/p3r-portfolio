@@ -29,7 +29,7 @@ All content (text, project write-ups, images, testimonials) is from the existing
 - Arcana cards deal in with a flip from a tarot back, float while idle, tilt and catch a holographic glare under the cursor
 - Lists, chips and stats stagger in; numbers count up; bars fill and glint
 - Images reveal with a sweeping block wipe; the lightbox zooms out of the thumbnail
-- Click splashes, a trailing cursor ring, magnetic buttons with a shine sweep and press squash
+- Click splashes, magnetic buttons with a shine sweep and press squash
 - Scroll progress bar, auto-hiding header, back-to-top button, scroll and mouse parallax
 - "Rank up" sparkle burst on each project's takeaways; chat bubbles pop in on the contact phone
 - Everything respects `prefers-reduced-motion`
