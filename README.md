@@ -8,7 +8,7 @@ All content (text, project write-ups, images, testimonials) is from the existing
 
 | Page | Idea |
 | --- | --- |
-| `index.html` | Main-menu hero with a cut-out of Lasse, dialogue intro with choices, project rows with Arcana cards, testimonial carousel |
+| `index.html` | Main-menu hero with a cut-out of Lasse, dialogue intro with a speaking portrait and choices, project rows with Arcana cards, testimonial carousel |
 | `projects.html` | Compendium: Social Link list with live preview, filters (role, engine) and sorting (Arcana №, newest, team size) |
 | `about.html` | Status screen: parameters, team-size bars, skills, equipment, full testimonial backlog |
 | `cv.html` | Curriculum Vitae as a timeline with a sticky calendar that "rewinds" through the dates as you scroll |
@@ -28,7 +28,7 @@ All content (text, project write-ups, images, testimonials) is from the existing
 ## Motion & feedback
 
 - Live WebGL water-caustics background (falls back to CSS when WebGL, motion or data saving is off)
-- First-visit intro and labelled page wipes with loading-screen tips
+- First-visit intro and labelled page wipes
 - "Let's team up!" finish screen on the Contact buttons
 - Headings cascade in letter by letter; project titles glitch on hover
 - Arcana cards deal in with a flip from a tarot back, float while idle, tilt and catch a holographic glare under the cursor

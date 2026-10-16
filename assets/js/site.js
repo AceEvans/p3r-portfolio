@@ -335,7 +335,7 @@
       </div>
       <div class="toasts" role="status" aria-live="polite"></div>
       <div class="pad-bar" aria-hidden="true" hidden></div>
-      <div class="wipe" aria-hidden="true"><i></i><i></i><i></i><div class="wipe__label"><b></b><span>Now loading</span><p class="wipe__tip"><i>Tip</i><span></span></p></div></div>`);
+      <div class="wipe" aria-hidden="true"><i></i><i></i><i></i><div class="wipe__label"><b></b><span>Now loading</span></div></div>`);
 
     $$('[data-year]').forEach((el) => { el.textContent = new Date().getFullYear(); });
   }
@@ -568,30 +568,20 @@
     return pg ? pg.label : 'Loading';
   }
 
-  function pickTip() {
-    const last = Number(session.get('p3-last-tip'));
-    let i = Math.floor(Math.random() * TIPS.length);
-    if (i === last) i = (i + 1) % TIPS.length;
-    session.set('p3-last-tip', String(i));
-    return TIPS[i];
-  }
-
   function initWipe() {
     const wipe = $('.wipe');
     const label = $('.wipe__label b', wipe);
-    const tipEl = $('.wipe__tip span', wipe);
 
     if (doc.classList.contains('wipe-pending')) {
       const arriving = session.get('p3-wipe');
       label.textContent = session.get('p3-wipe-label') || 'Lasse Meerburg';
-      tipEl.textContent = session.get('p3-wipe-tip') || pickTip();
       if (!arriving) wipe.classList.add('is-intro');
       wipe.classList.add('is-out');
       doc.classList.remove('wipe-pending');
-      ['p3-wipe', 'p3-wipe-label', 'p3-wipe-tip'].forEach((k) => session.del(k));
-      setTimeout(() => wipe.classList.remove('is-out', 'is-intro'), arriving ? 1300 : 1900);
+      ['p3-wipe', 'p3-wipe-label'].forEach((k) => session.del(k));
+      setTimeout(() => wipe.classList.remove('is-out', 'is-intro'), arriving ? 1100 : 1700);
       if (!reduceMotion) {
-        const hold = arriving ? 620 : 1150;
+        const hold = arriving ? 420 : 1050;
         revealGate = performance.now() + hold;
         doc.classList.add('is-arriving');
         setTimeout(() => doc.classList.remove('is-arriving'), hold);
@@ -612,10 +602,8 @@
       goTo = (href, text) => {
         const dest = new URL(href, location.href);
         label.textContent = text || labelFor(dest);
-        tipEl.textContent = pickTip();
         session.set('p3-wipe', '1');
         session.set('p3-wipe-label', label.textContent);
-        session.set('p3-wipe-tip', tipEl.textContent);
         sfx.whoosh();
         wipe.classList.remove('is-out', 'is-intro');
         wipe.classList.add('is-in');
@@ -1201,24 +1189,6 @@
      ====================================================================== */
 
   const GOATCOUNTER = 'lmeerburg';
-
-  // Loading-screen tips, all taken from the project write-ups and CV.
-  const TIPS = [
-    'ORTUS cut nearly 80% of its planned levels in week 5, and still shipped a polished game on time.',
-    'Soaked in Sin went from blank page to finished game in 48 hours, with a team of 12.',
-    'Sunbeat City grew from 6 people to 21 after its pitch was approved for full production.',
-    'Project Heist will ship with live big-band jazz, recorded with the Breda Big Band.',
-    'The Production Toolbox holds nine tools, each with an explanation, a template and a demo.',
-    'The Project Heist RACI rule: enable leads to lead, and teams to execute.',
-    'Sunbeat City ran a public early-access playtest on TikTok, Instagram, Reddit and Bluesky.',
-    'The ORTUS soundtrack was licensed for free, by contacting the song\'s producer directly.',
-    'External dependencies don\'t add overhead, they multiply it. (Project Heist)',
-    'The Production Guild meets every Friday so BUas producers can share what they learn.',
-    'Off duty, Lasse is usually cycling or playing D&D.',
-    'Press Esc anywhere to open the menu. Arrow keys and Enter work there too.',
-    'Plug in a controller: the whole site can be played with a gamepad.',
-    'Some rooms aren\'t on any map. ↑ ↑ ↓ ↓ ← → ← → B A',
-  ];
 
   let goTo = (href) => { location.href = href; };
   let finisherApi = null;

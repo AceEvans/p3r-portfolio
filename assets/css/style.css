@@ -1399,20 +1399,6 @@ a.arcana:active { --press: .95; }
 /* ---------- Wipe tip ------------------------------------------------------ */
 .wipe__label > span { display: inline-flex; align-items: center; gap: 10px; font: 700 italic 15px/1 var(--f-display); letter-spacing: .4em; text-transform: uppercase; color: var(--aqua); }
 .wipe__label > span::before { content: ""; width: 14px; height: 14px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
-.wipe__tip {
-  display: flex; align-items: baseline; gap: 12px; max-width: 640px; margin: 10px 0 0; padding: 12px 18px;
-  background: color-mix(in srgb, var(--abyss) 55%, transparent); border-left: 4px solid var(--cyan);
-  font: 500 16px/1.45 var(--f-body); letter-spacing: 0; text-transform: none; color: var(--foam); text-align: left;
-  transform: rotate(-2deg);
-}
-.wipe__tip i { flex: none; padding: 4px 9px; background: var(--cyan); color: var(--ink); font: 900 italic 14px/1 var(--f-display); letter-spacing: .2em; text-transform: uppercase; transform: skew(var(--skew)); }
-.wipe__tip span:empty { display: none; }
-.wipe.is-out:not(.is-intro) i:nth-child(3) { animation-delay: .35s; }
-.wipe.is-out:not(.is-intro) i:nth-child(2) { animation-delay: .4s; }
-.wipe.is-out:not(.is-intro) i:nth-child(1) { animation-delay: .45s; }
-.wipe.is-out:not(.is-intro) .wipe__label { animation: labelOut .3s .32s var(--ease) both; }
-@media (max-width: 620px) { .wipe__tip { font-size: 14px; } }
-
 /* ---------- "Let's team up!" finish screen ------------------------------ */
 .finisher { position: fixed; inset: 0; z-index: 240; display: grid; place-items: center; overflow: hidden; pointer-events: none; visibility: hidden; }
 .finisher.is-on { visibility: visible; }
@@ -1639,3 +1625,23 @@ a.arcana:active { --press: .95; }
 
 /* Trophy toasts sit next to the Trophies button while the menu is open */
 html.menu-open .toasts { top: auto; bottom: calc(4.5vh + 72px); }
+
+/* ---------- Home: speaker portrait beside the intro dialogue -------------- */
+.speaker { display: grid; grid-template-columns: clamp(200px, 24vw, 300px) minmax(0, 1fr); gap: clamp(22px, 3.5vw, 48px); align-items: center; }
+.speaker__portrait { --para: polygon(14% 0, 100% 0, 86% 100%, 0 100%); position: relative; margin: 0; aspect-ratio: 4 / 5; }
+.speaker__frame { position: absolute; inset: 0; translate: 14px 14px; background: var(--cyan); clip-path: var(--para); transition: translate .4s var(--ease-back); }
+.speaker__img { position: absolute; inset: 0; overflow: hidden; clip-path: var(--para); background: var(--deep); }
+.speaker__img img { width: 100%; height: 100%; object-fit: cover; object-position: 38% 28%; filter: saturate(.85) contrast(1.06); transform-origin: 50% 90%; transition: transform .6s var(--ease); }
+.speaker__img::before { content: ""; position: absolute; inset: 0; z-index: 1; background: var(--azure); mix-blend-mode: color; opacity: .3; transition: opacity .4s; }
+.speaker__img::after { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(200deg, transparent 40%, color-mix(in srgb, var(--blue) 70%, transparent)); mix-blend-mode: multiply; }
+.speaker__portrait:hover .speaker__img img { transform: scale(1.05); }
+.speaker__portrait:hover .speaker__img::before { opacity: .12; }
+/* While Lasse is "talking", the portrait bobs like a speaking character */
+.speaker:has(.dialog.is-typing) .speaker__img img { animation: talk .42s ease-in-out infinite; }
+.speaker:has(.dialog.is-typing) .speaker__frame { translate: 20px 20px; }
+@keyframes talk { 50% { transform: translateY(-4px) scale(1.012); } }
+.speaker__talk .dialog { margin-top: 22px; }
+@media (max-width: 700px) {
+  .speaker { grid-template-columns: 1fr; }
+  .speaker__portrait { width: min(220px, 62vw); justify-self: center; }
+}
