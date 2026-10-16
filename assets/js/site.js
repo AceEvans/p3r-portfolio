@@ -316,9 +316,6 @@
     const hdr = $('#hdr');
     const bar = $('.progress');
     const toTop = $('.to-top');
-    const bg = $('.bg');
-    const hero = $('.hero');
-    const phero = $('.phero');
     let lastY = window.scrollY;
     let ticking = false;
 
@@ -332,11 +329,6 @@
       if (Math.abs(y - lastY) > 6) lastY = y;
       bar.style.transform = `scaleX(${(y / max).toFixed(4)})`;
       toTop.classList.toggle('is-shown', y > window.innerHeight * 0.8);
-      if (!reduceMotion) {
-        bg.style.setProperty('--sy', y.toFixed(0));
-        if (hero && y < window.innerHeight * 1.5) hero.style.setProperty('--par', `${(y * 0.12).toFixed(1)}px`);
-        if (phero && y < window.innerHeight * 1.5) phero.style.setProperty('--par', `${(y * 0.3).toFixed(1)}px`);
-      }
     };
 
     window.addEventListener('scroll', () => {
@@ -352,15 +344,6 @@
       window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
     });
     update();
-  }
-
-  /* ---------- Screen shake ---------------------------------------------- */
-  function shake() {
-    if (reduceMotion) return;
-    const main = $('#main');
-    if (!main) return;
-    restart(main, 'is-shaking');
-    setTimeout(() => main.classList.remove('is-shaking'), 520);
   }
 
   /* ---------- Dark Hour theme -------------------------------------------- */
@@ -405,7 +388,6 @@
       if (document.startViewTransition) {
         showStamp(dark);
         document.startViewTransition(() => apply(dark));
-        setTimeout(shake, 250);
         return;
       }
 
@@ -414,7 +396,7 @@
       $('.dh-flash__sub', flash).textContent = dark ? 'The Dark Hour' : 'Back to normal time';
       flash.classList.toggle('dh-flash--day', !dark);
       restart(flash, 'is-on');
-      setTimeout(() => { apply(dark); shake(); }, 260);
+      setTimeout(() => apply(dark), 260);
     });
   }
 
@@ -587,7 +569,6 @@
       play(done) {
         sfx.hit();
         restart(el, 'is-on');
-        setTimeout(shake, 280);
         setTimeout(done, 1250);
       },
     };
@@ -609,15 +590,9 @@
     $$('.shot').forEach((el) => onVisible(el, () => el.classList.add('is-in')));
   }
 
-  /* ---------- Cards: back face + deal-in -------------------------------- */
+  /* ---------- Cards: fade in when they scroll into view ---------------- */
   function initCards() {
-    $$('.arcana').forEach((card) => {
-      const back = document.createElement('span');
-      back.className = 'arcana__back';
-      back.setAttribute('aria-hidden', 'true');
-      card.append(back);
-      onVisible(card, () => card.classList.add('is-dealt'));
-    });
+    $$('.arcana').forEach((card) => onVisible(card, () => card.classList.add('is-dealt')));
   }
 
   /* ---------- Counters --------------------------------------------------- */
@@ -720,7 +695,6 @@
           <span class="dialog__name"></span>
           <p class="dialog__text" aria-live="polite"></p>
           <p class="dialog__role"></p>
-          <span class="dialog__next" aria-hidden="true">▼</span>
         </div>
         <div class="talk__ctrl">
           <button class="btn" type="button" data-prev>◀ Prev</button>
@@ -896,7 +870,6 @@
       msgs[k].before(typing);
       setTimeout(() => {
         msgs[k].classList.remove('is-hidden');
-        restart(phone, 'is-buzz');
         sfx.pop();
         k += 1;
         step();
@@ -982,14 +955,6 @@
       if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); sfx.hover(); set(idx - 1, true); }
     });
     set(0);
-
-    const hero = $('.hero');
-    const cut = $('.hero__cutout');
-    if (cut) {
-      const fail = () => hero.classList.add('no-cutout');
-      if (cut.complete && !cut.naturalWidth) fail();
-      cut.addEventListener('error', fail);
-    }
   }
 
   /* ---------- CV: calendar that follows the timeline -------------------- */
@@ -1010,22 +975,26 @@
     const svg = document.createElementNS(NS, 'svg');
     svg.setAttribute('class', 'daycal__link');
     svg.setAttribute('aria-hidden', 'true');
-    svg.innerHTML = '<defs><marker id="dc-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs><path class="daycal__path" marker-end="url(#dc-arrow)"/>';
+    svg.innerHTML = '<path class="daycal__path"/><circle class="daycal__dot" r="4"/>';
     layout.append(svg);
     const path = $('.daycal__path', svg);
+    const dot = $('.daycal__dot', svg);
 
     let current = null;
     const draw = () => {
-      if (!current || getComputedStyle(cal).display === 'none') { path.setAttribute('d', ''); return; }
+      if (!current || getComputedStyle(cal).display === 'none') { path.setAttribute('d', ''); dot.setAttribute('r', '0'); return; }
+      dot.setAttribute('r', '4');
       const L = layout.getBoundingClientRect();
       const a = cal.getBoundingClientRect();
       const b = $('.tl__date', current).getBoundingClientRect();
       const x1 = a.right - L.left - 4;
       const y1 = a.top + a.height * 0.7 - L.top;
-      const x2 = b.left - L.left - 10;
+      const x2 = b.left - L.left - 8;
       const y2 = b.top + b.height / 2 - L.top;
       const xm = x1 + Math.max(14, (x2 - x1) * 0.4);
       path.setAttribute('d', `M${x1.toFixed(1)} ${y1.toFixed(1)}H${xm.toFixed(1)}V${y2.toFixed(1)}H${x2.toFixed(1)}`);
+      dot.setAttribute('cx', x2.toFixed(1));
+      dot.setAttribute('cy', y2.toFixed(1));
     };
     let ticking = false;
     const schedule = () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { ticking = false; draw(); }); } };
@@ -1062,10 +1031,10 @@
       const target = new Date(parts[0], parts[1] - 1, 1);
       const months = (target.getFullYear() - cur.getFullYear()) * 12 + (target.getMonth() - cur.getMonth());
       if (!months || reduceMotion) { cur = target; show(cur, true); return; }
-      fx.textContent = months > 0 ? '▶▶ Forward' : '◀◀ Rewinding';
+      fx.textContent = months > 0 ? 'Forward in time' : 'Rewinding';
       cal.classList.add('is-running');
       const start = cur;
-      const steps = Math.min(Math.abs(months), 14);
+      const steps = Math.min(Math.abs(months), 6);
       let k = 0;
       timer = setInterval(() => {
         k += 1;
@@ -1077,7 +1046,7 @@
           show(cur, true);
           cal.classList.remove('is-running');
         }
-      }, 70);
+      }, 90);
     };
 
     const watch = new IntersectionObserver((list) => {
@@ -1233,8 +1202,8 @@
         const r = el.getBoundingClientRect();
         const x = (e.clientX - r.left) / r.width;
         const y = (e.clientY - r.top) / r.height;
-        el.style.setProperty('--ry', `${((x - 0.5) * 14).toFixed(2)}deg`);
-        el.style.setProperty('--rx', `${(-(y - 0.5) * 14).toFixed(2)}deg`);
+        el.style.setProperty('--ry', `${((x - 0.5) * 7).toFixed(2)}deg`);
+        el.style.setProperty('--rx', `${(-(y - 0.5) * 7).toFixed(2)}deg`);
         el.style.setProperty('--px', `${(x * 100).toFixed(1)}%`);
         el.style.setProperty('--py', `${(y * 100).toFixed(1)}%`);
       });
@@ -1255,14 +1224,9 @@
       el.className = 'splash';
       el.style.left = `${e.clientX}px`;
       el.style.top = `${e.clientY}px`;
-      let html = '<i class="ring"></i><i class="ring ring--2"></i>';
-      const n = big ? 10 : 6;
-      for (let i = 0; i < n; i++) {
-        html += `<i class="drop" style="--a:${((360 / n) * i + Math.random() * 25).toFixed(0)}deg;--r:${(28 + Math.random() * 44).toFixed(0)}px"></i>`;
-      }
-      el.innerHTML = html;
+      el.innerHTML = `<i class="ring${big ? '' : ' ring--small'}"></i>`;
       document.body.append(el);
-      setTimeout(() => el.remove(), 1200);
+      setTimeout(() => el.remove(), 700);
     });
   }
 

@@ -1690,3 +1690,47 @@ a.arcana:active { --press: .95; }
 /* Menu close button lives top-right (where the Menu button is), clear of Extras */
 .menu .menu__close { position: absolute; top: 18px; right: clamp(16px, 3vw, 40px); }
 .quote::before { font: 700 82px/1 Georgia, "Times New Roman", serif; top: 10px; }
+
+/* ==========================================================================
+   v5 — less motion overall, arrows only on things you can click
+   ========================================================================== */
+
+/* Home hero: the hillside photo in its slanted frame */
+.hero--menu .hero__photo { display: block; }
+.hero__figure { min-height: 0; }
+.speaker__img img { object-position: 50% 22%; }
+
+/* Softer, shorter entrances */
+.js [data-reveal] { translate: 0 18px; transition: opacity .6s var(--ease), translate .6s var(--ease); }
+.js [data-stagger].is-in > * { animation: staggerSoft .45s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 45ms + 40ms); }
+@keyframes staggerSoft { from { opacity: 0; translate: 0 8px; } }
+.arcana.is-dealt { animation: fadeUp .7s var(--ease) both; }
+@keyframes fadeUp { from { opacity: 0; translate: 0 22px; } to { opacity: 1; translate: 0 0; } }
+.shot.is-in .shot__frame > div::after { animation: none; }
+.shot.is-in img { animation: fadeIn .7s var(--ease) both; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.js .title:not(.is-in) .title__main { translate: -14px 0; }
+@keyframes slamSoft { from { opacity: 0; translate: -24px 0; } to { opacity: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .hero__title > span, .phero__title, .hero__role, .phero__role { animation-name: slamSoft; animation-duration: .7s; }
+  .hero__photo { animation: slamSoft .8s .1s var(--ease) both; }
+}
+.tl.is-in .tl__date { animation: none; }
+.rankup.is-in .rankup__flag, .quest.is-in .quest__stamp { animation: fadeIn .5s .2s var(--ease) both; }
+
+/* Nothing loops, wobbles or shakes */
+.bg__waves, .menu__bg::after { animation: none; }
+.menu__bg { animation: menuBg .45s var(--ease) both; }
+.proj__title a:hover, .pnav__link:hover .pnav__title, .slink__item a.is-active .slink__title { animation: none; }
+.menu__item.is-active .menu__label, .hmenu__item.is-active .hmenu__label { animation: none; }
+.speaker:has(.dialog.is-typing) .speaker__img img { animation: none; }
+.speaker:has(.dialog.is-typing) .speaker__frame { translate: 14px 14px; }
+.phone.is-buzz, .is-shaking { animation: none; }
+.arcana:hover::after, .arcana:focus-visible::after { opacity: .6; }
+.splash .ring { width: 56px; height: 56px; margin: -28px 0 0 -28px; animation-duration: .45s; }
+.splash .ring--small { width: 36px; height: 36px; margin: -18px 0 0 -18px; opacity: .7; }
+
+/* Arrows only where there is something to click */
+.dialog__next { display: none; }
+.shot figcaption::before { content: none; }
+.daycal__dot { fill: var(--cyan); }
