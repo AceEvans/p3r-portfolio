@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;0,900;1,500;1,600;1,700;1,800;1,900&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cinzel:wght@500;700&display=swap">
 <link rel="stylesheet" href="../assets/css/style.css">
-<script>(function(d){d.classList.add('js');try{var q=location.search.match(/[?&]theme=(dark-hour|day)(?=&|$)/),t=q?q[1]:localStorage.getItem('p3-theme');if(q)localStorage.setItem('p3-theme',t);if(t==='dark-hour'||(!t&&new Date().getHours()===0))d.dataset.theme='dark-hour';if(sessionStorage.getItem('p3-wipe'))d.classList.add('wipe-pending')}catch(e){}setTimeout(function(){if(!window.__p3)d.classList.remove('js','wipe-pending')},3000)})(document.documentElement)</script>
+<script>(function(d){d.classList.add('js');try{var q=location.search.match(/[?&]theme=(dark-hour|day)(?=&|$)/),t=q?q[1]:localStorage.getItem('p3-theme');if(q)localStorage.setItem('p3-theme',t);if(t==='dark-hour'||(!t&&new Date().getHours()===0))d.dataset.theme='dark-hour';if(sessionStorage.getItem('p3-wipe')||!sessionStorage.getItem('p3-seen'))d.classList.add('wipe-pending')}catch(e){}setTimeout(function(){if(!window.__p3)d.classList.remove('js','wipe-pending')},3000)})(document.documentElement)</script>
 <script src="../assets/js/site.js" defer></script>
 </head>
 <body data-project="production-toolbox">
@@ -69,7 +69,7 @@
 
       <div class="split" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>01</span>Research</h3>
+          <h3 class="h3"><span class="h3__num">01</span>Research</h3>
           <p>As part of this project, I conducted research into the essential tools producers need to manage game development effectively. This involved gathering insights from industry veterans, exploring different programs, and evaluating which platforms were best suited for creating production templates.</p>
           <p>Through this process, I not only gained a deeper understanding of production tools but also developed stronger research skills, learning how to find, analyse, and apply relevant information.</p>
         </div>
@@ -83,7 +83,7 @@
 
       <div class="split split--flip split--top" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>02</span>Toolbox</h3>
+          <h3 class="h3"><span class="h3__num">02</span>Toolbox</h3>
           <p>The Production Toolbox I created consists of nine tools designed to streamline game production. Each tool includes a clear explanation of what it does, why it's useful, and how to use the accompanying template and demo. Developing this toolbox taught me a lot about making documents accessible and easy to use for a variety of teams.</p>
           <p>Its impact goes beyond my own work. So far, it has been used in eight different projects. While I directly applied it to one project I produced, the other seven were led by different teams, proving its versatility and effectiveness in different development environments.</p>
         </div>

@@ -18,10 +18,21 @@ All content (text, project write-ups, images, testimonials) is from the existing
 ## Interactions
 
 - **Esc** opens the full-screen pause-style menu (arrow keys + Enter to navigate)
-- **Dark Hour** button switches the palette (it switches on automatically between 00:00 and 01:00 unless you have picked a theme)
+- **Dark Hour** button switches the palette with a circular reveal and a clock stamp (it switches on automatically between 00:00 and 01:00 unless you have picked a theme). Link straight to it with `?theme=dark-hour`
+- **SFX** button turns on synthesised UI sounds (Web Audio, no audio files; off by default)
 - Live date, moon phase and time of day in the header
-- Page-wipe transitions, typewriter dialogue, card tilt, image lightbox
-- Respects `prefers-reduced-motion`
+
+## Motion & feedback
+
+- First-visit intro and labelled page-wipe transitions
+- Headings cascade in letter by letter; project titles glitch on hover
+- Arcana cards deal in with a flip from a tarot back, float while idle, tilt and catch a holographic glare under the cursor
+- Lists, chips and stats stagger in; numbers count up; bars fill and glint
+- Images reveal with a sweeping block wipe; the lightbox zooms out of the thumbnail
+- Click splashes, a trailing cursor ring, magnetic buttons with a shine sweep and press squash
+- Scroll progress bar, auto-hiding header, back-to-top button, scroll and mouse parallax
+- "Rank up" sparkle burst on each project's takeaways; chat bubbles pop in on the contact phone
+- Everything respects `prefers-reduced-motion`
 
 ## Running locally
 

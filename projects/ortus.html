@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;0,900;1,500;1,600;1,700;1,800;1,900&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cinzel:wght@500;700&display=swap">
 <link rel="stylesheet" href="../assets/css/style.css">
-<script>(function(d){d.classList.add('js');try{var q=location.search.match(/[?&]theme=(dark-hour|day)(?=&|$)/),t=q?q[1]:localStorage.getItem('p3-theme');if(q)localStorage.setItem('p3-theme',t);if(t==='dark-hour'||(!t&&new Date().getHours()===0))d.dataset.theme='dark-hour';if(sessionStorage.getItem('p3-wipe'))d.classList.add('wipe-pending')}catch(e){}setTimeout(function(){if(!window.__p3)d.classList.remove('js','wipe-pending')},3000)})(document.documentElement)</script>
+<script>(function(d){d.classList.add('js');try{var q=location.search.match(/[?&]theme=(dark-hour|day)(?=&|$)/),t=q?q[1]:localStorage.getItem('p3-theme');if(q)localStorage.setItem('p3-theme',t);if(t==='dark-hour'||(!t&&new Date().getHours()===0))d.dataset.theme='dark-hour';if(sessionStorage.getItem('p3-wipe')||!sessionStorage.getItem('p3-seen'))d.classList.add('wipe-pending')}catch(e){}setTimeout(function(){if(!window.__p3)d.classList.remove('js','wipe-pending')},3000)})(document.documentElement)</script>
 <script src="../assets/js/site.js" defer></script>
 </head>
 <body data-project="ortus">
@@ -74,7 +74,7 @@
 
       <div class="split" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>01</span>Building the team</h3>
+          <h3 class="h3"><span class="h3__num">01</span>Building the team</h3>
           <p>From the very beginning, I knew that a clear and unified vision would be critical to our success. With only 8 weeks to deliver a polished game, there was no room for misalignment or confusion. During the concepting phase, I led brainstorming sessions where we voted on the core idea for ORTUS. Once the direction was set, I worked with the team to establish a structure of feature teams, ensuring that each discipline — design, art, and programming — had clear ownership of their tasks.</p>
           <p>To keep everyone on the same page, I drafted a team contract that outlined our goals, responsibilities, and workflows. This document became the foundation of our collaboration, helping us navigate the challenges of working in a large, multidisciplinary team.</p>
         </div>
@@ -88,7 +88,7 @@
 
       <div class="split split--flip split--top" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>02</span>Using Agile</h3>
+          <h3 class="h3"><span class="h3__num">02</span>Using Agile</h3>
           <p>We adopted an Agile methodology, specifically Scrum, to manage our workflow. However, I quickly realised that Agile frameworks aren't one-size-fits-all. Without a designated Product Owner, the team collectively took on the responsibilities of prioritising tasks and managing the Sprint backlog. I stepped in to create and oversee the Product Backlog, ensuring that our goals were aligned with the timeline.</p>
           <p>Our main tracking tool was a KanbanFlow board provided by the university, which became the heartbeat of our project. I tailored the Scrum process to fit our team's needs, holding daily stand-ups to review progress, identify blockers, and adjust priorities. This was my first time managing a sizable Agile team, and it taught me the importance of flexibility and adaptability in project management.</p>
         </div>
@@ -106,7 +106,7 @@
 
       <div class="split split--top" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>03</span>Communication</h3>
+          <h3 class="h3"><span class="h3__num">03</span>Communication</h3>
           <p>As the producer, I prioritised clear and consistent communication. I led daily stand-ups and bi-daily meetings with discipline leads to review progress, assess risks, and tackle challenges. These meetings were essential for keeping the team aligned and ensuring everyone had a voice in the process.</p>
           <p>I also made it a point to have informal one-on-one conversations with team members. These check-ins allowed me to gauge morale, address concerns, and provide support where needed. By fostering an open and collaborative environment, I was able to build trust and keep the team motivated throughout the project.</p>
           <p>One of my key responsibilities was acting as the point of contact between the team and stakeholders. After each sprint, I shared updates on our progress, highlighting achievements and addressing any concerns through the use of data such as our burndown charts. This transparency helped maintain stakeholder confidence and ensured that everyone was working toward the same vision.</p>
@@ -126,7 +126,7 @@
 
       <div class="split split--flip split--top" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>04</span>Challenges during development</h3>
+          <h3 class="h3"><span class="h3__num">04</span>Challenges during development</h3>
           <p>Midway through development, we hit a significant roadblock. In the 5th week, it became clear that the level design was significantly behind. The issue stemmed from a cultural difference within the feature teams: while most teams had good quality-checking processes, the level design team had a more relaxed approach, which I had failed to notice earlier.</p>
           <p>This was a pivotal moment for me as a producer. I immediately called a meeting with all the designers to assess the situation and determine a path forward. We cut nearly 80% of the planned levels to ensure the remaining content could be polished to a high standard. While this was a tough call, we decided to put quality over quantity, meeting our deadline and delivering a quality product.</p>
           <p>To prevent similar issues in the future, I worked with the level design team to implement stricter quality checks and improve their workflow and communication. These changes paid off, and we didn't encounter any further setbacks.</p>
@@ -146,7 +146,7 @@
 
       <div class="split" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>05</span>Music acquisition</h3>
+          <h3 class="h3"><span class="h3__num">05</span>Music acquisition</h3>
           <p>One of my responsibilities during the development of ORTUS was to find music to complement our twin-stick shooter. After researching various tracks, I found a song that matched the game's tone. However, using copyrighted music in a student project presented its own set of challenges.</p>
           <p>I contacted the song's producer directly, introducing our project and explaining our vision for ORTUS. Through clear and professional communication, I negotiated a deal that allowed us to use the track at no cost as long as we provided proper credits in the game. This agreement saved the project budget and ensured we adhered to legal standards.</p>
         </div>

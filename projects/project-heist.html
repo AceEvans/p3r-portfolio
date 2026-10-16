@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;0,900;1,500;1,600;1,700;1,800;1,900&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cinzel:wght@500;700&display=swap">
 <link rel="stylesheet" href="../assets/css/style.css">
-<script>(function(d){d.classList.add('js');try{var q=location.search.match(/[?&]theme=(dark-hour|day)(?=&|$)/),t=q?q[1]:localStorage.getItem('p3-theme');if(q)localStorage.setItem('p3-theme',t);if(t==='dark-hour'||(!t&&new Date().getHours()===0))d.dataset.theme='dark-hour';if(sessionStorage.getItem('p3-wipe'))d.classList.add('wipe-pending')}catch(e){}setTimeout(function(){if(!window.__p3)d.classList.remove('js','wipe-pending')},3000)})(document.documentElement)</script>
+<script>(function(d){d.classList.add('js');try{var q=location.search.match(/[?&]theme=(dark-hour|day)(?=&|$)/),t=q?q[1]:localStorage.getItem('p3-theme');if(q)localStorage.setItem('p3-theme',t);if(t==='dark-hour'||(!t&&new Date().getHours()===0))d.dataset.theme='dark-hour';if(sessionStorage.getItem('p3-wipe')||!sessionStorage.getItem('p3-seen'))d.classList.add('wipe-pending')}catch(e){}setTimeout(function(){if(!window.__p3)d.classList.remove('js','wipe-pending')},3000)})(document.documentElement)</script>
 <script src="../assets/js/site.js" defer></script>
 </head>
 <body data-project="project-heist">
@@ -70,7 +70,7 @@
 
       <div class="split split--top" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>01</span>Clear ownership</h3>
+          <h3 class="h3"><span class="h3__num">01</span>Clear ownership</h3>
           <p>From the start, I knew 28 people needed clear ownership at every level. I built a RACI matrix around a simple principle: I enable leads to lead, and teams to execute. I held accountability for project health, schedule, and scope; discipline leads owned quality and creative direction; team members had autonomy over execution decisions.</p>
           <p>To keep everyone aligned, I ran 2–3 week sprints around the academic calendar, managed the backlog in Jira, and maintained living documentation in Confluence. Daily stand-ups, build reviews, retrospectives, and cross-discipline meetings kept the rhythm steady and dependencies from becoming bottlenecks.</p>
           <ul class="legend" aria-label="RACI legend">
@@ -94,7 +94,7 @@
 
       <div class="split split--flip" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>02</span>Producing the concepting phase</h3>
+          <h3 class="h3"><span class="h3__num">02</span>Producing the concepting phase</h3>
           <p>The challenge: turn a team of up to 28 people, many with no concepting or cross-discipline experience, into an aligned game concept with a playable proof of fun, in three weeks.</p>
           <p>Large teams spiral during open-ended brainstorming, so I designed a structured three-week concepting framework using game jams as a concepting tool. Rather than debating ideas in the abstract, teams built micro-prototypes to discover what works through doing.</p>
           <p><strong>Week 1</strong> focused on exploration, reference analysis and short jams producing multiple micro-prototypes. <strong>Week 2</strong> converged on a final direction, producing a full concept document with pillars, core loop, and proof of fun scope. <strong>Week 3</strong> was a focused production sprint with daily stand-ups, a midweek playtest, and a hard deadline, scope protected with a built-in 20–30% buffer.</p>
@@ -114,7 +114,7 @@
 
       <div class="split" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>03</span>Navigating a design pivot</h3>
+          <h3 class="h3"><span class="h3__num">03</span>Navigating a design pivot</h3>
           <p>Midway through pre-production, our core time-travel mechanic wasn't working. I identified the risk early, facilitated design discussions, and drove the team toward a decision between two directions: rework it into localised time travel, or pivot to dimensional travel while keeping our existing architecture intact.</p>
           <p>I made the call to go with dimensional travel, the pragmatic choice that avoided a costly rework while opening new creative space for narrative and world-building. I then led the communication of the pivot to stakeholders and the full team, ensuring everyone understood the reasoning and what it meant for their work going forward.</p>
         </div>
@@ -128,7 +128,7 @@
 
       <div class="split split--flip" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>04</span>Scope &amp; collaboration</h3>
+          <h3 class="h3"><span class="h3__num">04</span>Scope &amp; collaboration</h3>
           <p>Early in the project, designers wanted to keep scope small for quality, leaving programmers underutilised and the two disciplines struggling to collaborate. I intervened early, bringing both sides together to map out the actual workload and estimate effort together.</p>
           <p>Through structured mediation, I helped programmers identify meaningful contributions — level editors, QA automation, and iteration tools — while giving designers clarity on what programmer support could unlock. It took ongoing facilitation and lead check-ins to stick, but the result was a team where both disciplines felt ownership and purpose.</p>
         </div>
@@ -142,7 +142,7 @@
 
       <div class="split split--top" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>05</span>Securing a live big-band recording</h3>
+          <h3 class="h3"><span class="h3__num">05</span>Securing a live big-band recording</h3>
           <p>I set out to secure live big-band jazz for the soundtrack, the perfect fit for a heist game. What I scoped as 8 hours turned into 24+ across multiple weeks, as what seemed like "send some emails, get a yes" revealed itself to be a full multi-party outsourcing operation.</p>
           <p>I was managing communication across four external parties simultaneously: the Breda Big Band and their conductor, composer Samuel Wright from The International School of The Hague, a professional recording studio, and academic stakeholders for funding approval. Each had their own timelines, availability, and decision-making processes, requiring me to track dependencies, chase responses, compile pricing options, explore alternative funding routes, and keep momentum alive across all fronts at once.</p>
           <p><strong>The result:</strong> first samples delivered, recording studio booked, and Project Heist will ship with live-recorded big-band music.</p>
@@ -158,7 +158,7 @@
 
       <div class="split split--flip" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>06</span>Production planning</h3>
+          <h3 class="h3"><span class="h3__num">06</span>Production planning</h3>
           <p>One of my key contributions was building a comprehensive production plan and resource allocation for the entire production phase. It mapped out what needed to happen, when, and with which people, across all disciplines.</p>
           <p>Having this plan gives the team clarity and enables me to anticipate bottlenecks before they occur. It has become the backbone of our sprint planning and helped discipline leads understand not only their own roadmap but also how their work connects to the rest of the project.</p>
         </div>

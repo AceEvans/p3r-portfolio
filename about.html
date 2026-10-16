@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;0,900;1,500;1,600;1,700;1,800;1,900&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cinzel:wght@500;700&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
-<script>(function(d){d.classList.add('js');try{var q=location.search.match(/[?&]theme=(dark-hour|day)(?=&|$)/),t=q?q[1]:localStorage.getItem('p3-theme');if(q)localStorage.setItem('p3-theme',t);if(t==='dark-hour'||(!t&&new Date().getHours()===0))d.dataset.theme='dark-hour';if(sessionStorage.getItem('p3-wipe'))d.classList.add('wipe-pending')}catch(e){}setTimeout(function(){if(!window.__p3)d.classList.remove('js','wipe-pending')},3000)})(document.documentElement)</script>
+<script>(function(d){d.classList.add('js');try{var q=location.search.match(/[?&]theme=(dark-hour|day)(?=&|$)/),t=q?q[1]:localStorage.getItem('p3-theme');if(q)localStorage.setItem('p3-theme',t);if(t==='dark-hour'||(!t&&new Date().getHours()===0))d.dataset.theme='dark-hour';if(sessionStorage.getItem('p3-wipe')||!sessionStorage.getItem('p3-seen'))d.classList.add('wipe-pending')}catch(e){}setTimeout(function(){if(!window.__p3)d.classList.remove('js','wipe-pending')},3000)})(document.documentElement)</script>
 <script src="assets/js/site.js" defer></script>
 </head>
 <body>

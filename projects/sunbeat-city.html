@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;0,900;1,500;1,600;1,700;1,800;1,900&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cinzel:wght@500;700&display=swap">
 <link rel="stylesheet" href="../assets/css/style.css">
-<script>(function(d){d.classList.add('js');try{var q=location.search.match(/[?&]theme=(dark-hour|day)(?=&|$)/),t=q?q[1]:localStorage.getItem('p3-theme');if(q)localStorage.setItem('p3-theme',t);if(t==='dark-hour'||(!t&&new Date().getHours()===0))d.dataset.theme='dark-hour';if(sessionStorage.getItem('p3-wipe'))d.classList.add('wipe-pending')}catch(e){}setTimeout(function(){if(!window.__p3)d.classList.remove('js','wipe-pending')},3000)})(document.documentElement)</script>
+<script>(function(d){d.classList.add('js');try{var q=location.search.match(/[?&]theme=(dark-hour|day)(?=&|$)/),t=q?q[1]:localStorage.getItem('p3-theme');if(q)localStorage.setItem('p3-theme',t);if(t==='dark-hour'||(!t&&new Date().getHours()===0))d.dataset.theme='dark-hour';if(sessionStorage.getItem('p3-wipe')||!sessionStorage.getItem('p3-seen'))d.classList.add('wipe-pending')}catch(e){}setTimeout(function(){if(!window.__p3)d.classList.remove('js','wipe-pending')},3000)})(document.documentElement)</script>
 <script src="../assets/js/site.js" defer></script>
 </head>
 <body data-project="sunbeat-city">
@@ -73,7 +73,7 @@
 
       <div class="split" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>01</span>From six people to twenty-one</h3>
+          <h3 class="h3"><span class="h3__num">01</span>From six people to twenty-one</h3>
           <p>In early 2025, I stepped into my biggest challenge yet: producing Sunbeat City, a 16-week game project that started with just six people — five designers and me, working as both designer and producer.</p>
           <p>The goal for the first eight weeks was simple in theory, brutal in practice: create a playable prototype good enough to pitch to the lecturing staff. Only the most promising projects would make it through to full production.</p>
           <p class="lead"><strong>We made it.</strong> And in the process, my role transformed completely.</p>
@@ -88,7 +88,7 @@
 
       <div class="split split--flip" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>02</span>Scaling up</h3>
+          <h3 class="h3"><span class="h3__num">02</span>Scaling up</h3>
           <p>After the pitch, our team exploded in size: twenty-one designers, artists, and programmers, plus me as the sole producer. My job shifted from balancing two roles to managing both the product and the people.</p>
           <p>We had eight weeks to deliver a polished vertical slice for industry review. That meant building a production pipeline that could keep a large, multi-disciplinary team focused and aligned. For this goal I had to prepare a lot of documentation so our team could work as smoothly as possible, including a scope breakdown, dependency mappings, and other production documentation.</p>
         </div>
@@ -102,7 +102,7 @@
 
       <div class="split" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>03</span>A process that empowered the team</h3>
+          <h3 class="h3"><span class="h3__num">03</span>A process that empowered the team</h3>
           <p>I created a planning approach I called <strong>Autonomous Agile</strong>, based on Scrum, but with more room for personal ownership.</p>
           <p>Instead of assigning rigid sprint tasks, each developer took full responsibility for their own user stories, planning their own timelines while working toward shared deadlines. To keep things organised, I used Codecks to track tasks, and ran:</p>
           <ul>
@@ -122,7 +122,7 @@
 
       <div class="split split--flip" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>04</span>Collaboration across disciplines</h3>
+          <h3 class="h3"><span class="h3__num">04</span>Collaboration across disciplines</h3>
           <p>With a team this large, collaboration had to be deliberate.</p>
           <p>I set up cross-discipline meetings so leads and team members could surface blockers early. I also made time for one-on-one check-ins — especially important for those less comfortable speaking up in groups.</p>
           <p>Over time, the team shifted from "school project" mode to feeling like a professional game team. People began giving and receiving feedback openly, regardless of discipline, and collaboration felt natural rather than forced.</p>
@@ -137,7 +137,7 @@
 
       <div class="split split--top" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>05</span>The hard stuff — conflict management</h3>
+          <h3 class="h3"><span class="h3__num">05</span>The hard stuff — conflict management</h3>
           <p>Not everything was smooth.</p>
           <p>Midway through production, one teammate's behaviour was negatively affecting others. I initially tried to limit their impact by assigning them more isolated work, but the issues persisted. Multiple people shared that they felt undermined or pressured by this person's approach.</p>
           <p>Looking back, I should have addressed it directly much sooner, setting clearer boundaries and expectations early on.</p>
@@ -153,12 +153,12 @@
 
       <div class="split split--top" data-reveal>
         <div class="split__text prose">
-          <h3 class="h3"><span>06</span>Quality assurance</h3>
+          <h3 class="h3"><span class="h3__num">06</span>Quality assurance</h3>
           <p>Our QA process, built on smoke testing and a clear agreement, kept the game stable. But as the project evolved, people started testing differently than documented, and I didn't update the official process to match.</p>
           <p>While this didn't cause major problems, it was a reminder that process must reflect reality, and that consistency matters when quality is on the line.</p>
         </div>
         <div class="split__text prose">
-          <h3 class="h3"><span>07</span>Publishing &amp; community</h3>
+          <h3 class="h3"><span class="h3__num">07</span>Publishing &amp; community</h3>
           <p>One of the project's highlights was our publishing strategy.</p>
           <p>From the start, we planned an early access release, using TikTok, Instagram, Reddit, and Bluesky to reach players. We were transparent that this was a public playtest, and that honesty encouraged valuable, actionable feedback — which I was in charge of gathering and communicating back to the team.</p>
           <p>By the time we officially launched, we'd already addressed key issues, polished core features, and refined what players enjoyed most. The final release was stronger because of it.</p>
